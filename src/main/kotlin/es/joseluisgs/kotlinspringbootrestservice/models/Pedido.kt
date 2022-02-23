@@ -13,20 +13,24 @@ data class Pedido(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
 
+    @CreatedDate
+    val fecha: LocalDateTime,
+
+    // Mi relaciones
+
     // Un pedido tiene un usuario, pero un usuario tiene muchos pedidos, unidireccional P->U
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     val cliente: Usuario,
-
-    @CreatedDate
-    val fecha: LocalDateTime,
 
     // Un pedido tiene muchas lineas de pedido P -> LP (Bidreccional)
     @JsonManagedReference // para romper la recursividad usamos @JsonManagedReference
     @OneToMany(mappedBy = "pedido", cascade = [CascadeType.ALL], orphanRemoval = true)
     val lineasPedido: MutableSet<LineaPedido> = mutableSetOf()
 ) {
-    fun total() = lineasPedido.sumOf { it.subTotal() }
+    // En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
+    val total: Double
+        get() = lineasPedido.sumOf { it.subTotal }
 
     // Helper para manejar la recursividad
     fun addLineaPedido(lineaPedido: LineaPedido) {

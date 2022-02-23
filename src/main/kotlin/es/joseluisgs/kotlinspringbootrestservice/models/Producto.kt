@@ -13,6 +13,8 @@ data class Producto(
     val imagen: String?,
     var slug: String = nombre.toSlug(),
 
+    // Mis relaciones
+    // Un producto tiene una categoria, una categoria tiene muchos productos, unidireccional P -> C
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     val categoria: Categoria
