@@ -1,9 +1,13 @@
 package es.joseluisgs.kotlinspringbootrestservice.models
 
 import es.joseluisgs.kotlinspringbootrestservice.Extensions.toSlug
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
+@EntityListeners(AuditingEntityListener::class)
 data class Producto(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -11,7 +15,10 @@ data class Producto(
     val nombre: String,
     val precio: Double,
     val imagen: String?,
-    var slug: String = nombre.toSlug(),
+    val slug: String = nombre.toSlug(),
+    @CreatedDate
+    val createdAt: LocalDateTime,
+
 
     // Mis relaciones
     // Un producto tiene una categoria, una categoria tiene muchos productos, unidireccional P -> C

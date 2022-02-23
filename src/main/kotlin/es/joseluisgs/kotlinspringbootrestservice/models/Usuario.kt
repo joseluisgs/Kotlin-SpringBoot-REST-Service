@@ -1,10 +1,12 @@
 package es.joseluisgs.kotlinspringbootrestservice.models
 
 import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
+@EntityListeners(AuditingEntityListener::class)
 @Table(name = "usuarios") // Si podemos cambiar el nombre de la tabla
 data class Usuario(
     @Id
