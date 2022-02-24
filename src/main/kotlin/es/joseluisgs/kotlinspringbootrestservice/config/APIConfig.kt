@@ -15,6 +15,19 @@ class APIConfig {
 
         @Value("\${api.version}")
         const val API_VERSION = "1.0"
+
+        @Value("\${pagination.init}")
+        const val PAGINATION_INIT = "0"
+
+        @Value("\${pagination.size}")
+        const val PAGINATION_SIZE = "10"
+
+        @Value("\${pagination.sort}")
+        const val PAGINATION_SORT = "id"
+
+        @Value("\${project.name}")
+        const val PROJECT_NAME = "Kotlin-Spring-Boot-Rest-Service"
+
     }
 
 }
