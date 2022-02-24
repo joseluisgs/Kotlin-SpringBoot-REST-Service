@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
+/**
+ * Configuración global para
+ */
 @Configuration
 @EnableJpaAuditing // Activamos la auditoria, esto por ejemplo nos permite no meter la fecha si no que la tome automáticamente
 
@@ -29,5 +32,4 @@ class APIConfig {
         const val PROJECT_NAME = "Kotlin-Spring-Boot-Rest-Service"
 
     }
-
 }

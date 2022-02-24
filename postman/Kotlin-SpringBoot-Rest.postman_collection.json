@@ -223,6 +223,42 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "POST CREATE with Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/joseluisgs/Proyectos/Kotlin-SpringBoot-REST-Service/postman/nuevoproducto.jpg"
+								},
+								{
+									"key": "producto",
+									"type": "file",
+									"src": "/home/joseluisgs/Proyectos/Kotlin-SpringBoot-REST-Service/postman/nuevoproducto.json"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:6969/rest/productos/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"productos",
+								"create"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -372,6 +408,69 @@
 								"categorias",
 								"1",
 								"productos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Storage",
+			"item": [
+				{
+					"name": "POST Upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/joseluisgs/Proyectos/Kotlin-SpringBoot-REST-Service/postman/nuevoproducto.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:6969/rest/storage",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"storage"
+							],
+							"query": [
+								{
+									"key": "file",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET File",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6969/rest/storage/1645723170759_nuevoproducto.jpg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"storage",
+								"1645723170759_nuevoproducto.jpg"
 							]
 						}
 					},

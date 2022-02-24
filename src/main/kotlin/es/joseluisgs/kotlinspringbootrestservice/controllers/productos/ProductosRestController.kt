@@ -10,12 +10,15 @@ import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoNotFou
 import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
 import es.joseluisgs.kotlinspringbootrestservice.repositories.ProductosRepository
+import es.joseluisgs.kotlinspringbootrestservice.services.storage.StorageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 
 @RestController
@@ -25,7 +28,8 @@ class ProductosRestController
 @Autowired constructor(
     private val productosRepository: ProductosRepository,
     private val productosMapper: ProductosMapper,
-    private val categoriasRepository: CategoriasRepository
+    private val categoriasRepository: CategoriasRepository,
+    private val storageService: StorageService
 ) {
 
     @GetMapping("")
@@ -69,13 +73,7 @@ class ProductosRestController
     @PostMapping("")
     fun create(@RequestBody producto: ProductoCreateDTO): ResponseEntity<ProductoDTO> {
         try {
-            if (!checkProductoData(producto.nombre, producto.precio, producto.categoriaId)) {
-                throw ProductoBadRequestException(
-                    "Datos incorrectos",
-                    "El nombre, precio o el identificador de la categoria  " +
-                            "son incorrectos o existe un problema al tratarlos"
-                )
-            }
+            checkProductoData(producto.nombre, producto.precio, producto.categoriaId)
             val categoria = categoriasRepository.findById(producto.categoriaId).get()
             val producto = productosMapper.fromDTO(producto, categoria)
             val result = productosMapper.toDTO(productosRepository.save(producto))
@@ -91,13 +89,7 @@ class ProductosRestController
     @PutMapping("/{id}")
     fun update(@RequestBody producto: ProductoCreateDTO, @PathVariable id: Long): ResponseEntity<ProductoDTO> {
         try {
-            if (!checkProductoData(producto.nombre, producto.precio, producto.categoriaId)) {
-                throw ProductoBadRequestException(
-                    "Datos incorrectos",
-                    "El nombre, precio o el identificador de la categoria  " +
-                            "son incorrectos o existe un problema al tratarlos"
-                )
-            }
+            checkProductoData(producto.nombre, producto.precio, producto.categoriaId)
             val categoria = categoriasRepository.findById(producto.categoriaId).get()
             val update = productosRepository.findById(id).orElseGet { throw ProductoNotFoundException(id) }
             update.nombre = producto.nombre
@@ -136,7 +128,32 @@ class ProductosRestController
         }
     }
 
-    private fun checkProductoData(nombre: String, precio: Double, categoriaId: Long): Boolean {
+    @PostMapping(
+        value = ["/create"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+    )
+    fun nuevoProducto(
+        @RequestPart("producto") productoDTO: ProductoCreateDTO,
+        @RequestPart("file") file: MultipartFile
+    ): ResponseEntity<ProductoDTO> {
+        return try {
+            // Comprobamos los campos obligatorios
+            checkProductoData(productoDTO.nombre, productoDTO.precio, productoDTO.categoriaId)
+            val categoria = categoriasRepository.findById(productoDTO.categoriaId).get()
+            val producto = productosMapper.fromDTO(productoDTO, categoria)
+            if (!file.isEmpty) {
+                val imagen: String = storageService.store(file)
+                val urlImagen: String = storageService.getUrl(imagen)
+                producto.imagen = urlImagen
+            }
+            val productoInsertado = productosRepository.save(producto)
+            ResponseEntity.ok(productosMapper.toDTO(productoInsertado))
+        } catch (ex: ProductoNotFoundException) {
+            throw GeneralBadRequestException("Insertar", "Error al insertar el producto. Campos incorrectos")
+        }
+    }
+
+    private fun checkProductoData(nombre: String, precio: Double, categoriaId: Long) {
         if (nombre.trim().isBlank()) {
             throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
         }
@@ -146,7 +163,6 @@ class ProductosRestController
         if (!categoriasRepository.findById(categoriaId).isPresent) {
             throw ProductoBadRequestException("Categoría", "No existe categoría con id $categoriaId")
         }
-        return true
     }
 
 

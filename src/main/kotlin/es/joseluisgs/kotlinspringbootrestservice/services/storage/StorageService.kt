@@ -1,6 +1,6 @@
-package es.joseluisgs.kotlinspringbootrestservice.services.uploads
+package es.joseluisgs.kotlinspringbootrestservice.services.storage
 
-import jdk.internal.loader.Resource
+import org.springframework.core.io.Resource
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
 import java.util.stream.Stream
@@ -17,10 +17,10 @@ interface StorageService {
     fun loadAll(): Stream<Path>
 
     // Devuleve el Path o ruta de un fichero
-    fun load(filename: String?): Path
+    fun load(filename: String): Path
 
     // Devuelve el fichero como recurso
-    fun loadAsResource(filename: String?): Resource
+    fun loadAsResource(filename: String): Resource
 
     // Borra un fichero
     fun delete(filename: String)

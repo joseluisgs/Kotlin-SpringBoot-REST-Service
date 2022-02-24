@@ -1,5 +1,5 @@
 {
-  "nombre": "Producto nuevo",
-  "precio": 99.99,
-  "stock": 10
+  "nombre": "Producto Creacion Imagen",
+  "precio": "34.56",
+  "categoriaId": "3"
 }

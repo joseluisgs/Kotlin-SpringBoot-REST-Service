@@ -1,6 +1,10 @@
-package es.joseluisgs.kotlinspringbootrestservice.services.uploads
+package es.joseluisgs.kotlinspringbootrestservice.services.storage
 
+import es.joseluisgs.kotlinspringbootrestservice.controllers.storage.StorageRestController
+import es.joseluisgs.kotlinspringbootrestservice.errors.storage.StorageException
+import es.joseluisgs.kotlinspringbootrestservice.errors.storage.StorageFileNotFoundException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import org.springframework.util.FileSystemUtils
@@ -9,9 +13,11 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import java.io.IOException
 import java.net.MalformedURLException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.stream.Stream
 
 
 @Service
@@ -27,8 +33,8 @@ class FileSystemStorageService(
     }
 
     override fun store(file: MultipartFile): String {
-        val filename: String = StringUtils.cleanPath(file.originalFilename.toString())
-        val extension: String = StringUtils.getFilenameExtension(filename).toString()
+        val filename = StringUtils.cleanPath(file.originalFilename.toString())
+        val extension = StringUtils.getFilenameExtension(filename).toString()
         val justFilename = filename.replace(".$extension", "")
         val storedFilename = System.currentTimeMillis().toString() + "_" + justFilename + "." + extension
         try {
@@ -37,10 +43,7 @@ class FileSystemStorageService(
             }
             if (filename.contains("..")) {
                 // This is a security check
-                throw StorageException(
-                    "No se puede lamacenar un fichero fuera del path permitido "
-                            + filename
-                )
+                throw StorageException("No se puede almacenar un fichero fuera del path permitido $filename")
             }
             file.inputStream.use { inputStream ->
                 Files.copy(
@@ -50,14 +53,10 @@ class FileSystemStorageService(
                 return storedFilename
             }
         } catch (e: IOException) {
-            throw StorageException("Fallo al lamacenar fichero $filename", e)
+            throw StorageException("Fallo al almacenar fichero $filename", e)
         }
     }
 
-    /**
-     * Método que devuelve la ruta de todos los ficheros que hay
-     * en el almacenamiento secundario del proyecto.
-     */
     override fun loadAll(): Stream<Path> {
         return try {
             Files.walk(rootLocation, 1)
@@ -68,23 +67,15 @@ class FileSystemStorageService(
         }
     }
 
-    /**
-     * Método que es capaz de cargar un fichero a partir de su nombre
-     * Devuelve un objeto de tipo Path
-     */
-    override fun load(filename: String?): Path {
+    override fun load(filename: String): Path {
         return rootLocation.resolve(filename)
     }
 
-    /**
-     * Método que es capaz de cargar un fichero a partir de su nombre
-     * Devuelve un objeto de tipo Resource
-     */
-    override fun loadAsResource(filename: String?): Resource {
+    override fun loadAsResource(filename: String): Resource {
         return try {
-            val file: Path = load(filename)
-            val resource: Resource = UrlResource(file.toUri())
-            if (resource.exists() || resource.isReadable()) {
+            val file = load(filename)
+            val resource = UrlResource(file.toUri())
+            if (resource.exists() || resource.isReadable) {
                 resource
             } else {
                 throw StorageFileNotFoundException(
@@ -96,17 +87,11 @@ class FileSystemStorageService(
         }
     }
 
-    /**
-     * Método que elimina todos los ficheros del almacenamiento
-     * secundario del proyecto.
-     */
     override fun deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile())
     }
 
-    /**
-     * Método que inicializa el almacenamiento secundario del proyecto
-     */
+
     override fun init() {
         try {
             Files.createDirectories(rootLocation)
@@ -116,9 +101,9 @@ class FileSystemStorageService(
     }
 
     override fun delete(filename: String) {
-        val justFilename: String = StringUtils.getFilename(filename)
+        val justFilename: String = StringUtils.getFilename(filename).toString()
         try {
-            val file: Path = load(justFilename)
+            val file = load(justFilename)
             Files.deleteIfExists(file)
         } catch (e: IOException) {
             throw StorageException("Error al eliminar un fichero", e)
@@ -128,7 +113,7 @@ class FileSystemStorageService(
     override fun getUrl(filename: String): String {
         return MvcUriComponentsBuilder // El segundo argumento es necesario solo cuando queremos obtener la imagen
             // En este caso tan solo necesitamos obtener la URL
-            .fromMethodName(FilesRestController::class.java, "serveFile", filename, null)
+            .fromMethodName(StorageRestController::class.java, "serveFile", filename, null)
             .build().toUriString()
     }
 }
