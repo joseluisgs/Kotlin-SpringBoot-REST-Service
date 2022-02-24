@@ -16,5 +16,6 @@ interface ProductosRepository : JpaRepository<Producto, Long> {
     fun findByNombreContainsIgnoreCase(nombre: String?, pageable: Pageable?): Page<Producto?>
 
     @Query("select count(l.id) from LineaPedido l WHERE l.producto.id = :id")
-    fun countByLineaPedido(id: Long?): Long
+    fun countByLineasPedido(id: Long): Long
+
 }
