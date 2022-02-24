@@ -8,7 +8,7 @@ data class Categoria(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
     @Column(unique = true)
-    val nombre: String
+    var nombre: String
 ) {
     constructor(nombre: String) : this(0, nombre)
 }

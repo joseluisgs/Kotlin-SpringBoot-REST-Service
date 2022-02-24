@@ -50,7 +50,27 @@ class CategoriasRestController
         } catch (e: Exception) {
             throw GeneralBadRequestException(
                 "Error: Insertar Categoria",
-                "Campos incorrectos. ${e.message}"
+                "Campos incorrectos o nombre existente. ${e.message}"
+            )
+        }
+    }
+
+    @PutMapping("/{id}")
+    fun update(@RequestBody categoria: CategoriaCreateDTO, @PathVariable id: Long): ResponseEntity<Categoria> {
+        try {
+            if (!checkCategoriaData(categoria.nombre)) {
+                throw ProductoBadRequestException(
+                    "Datos incorrectos",
+                    "El nombre de la categoria no es correcto"
+                )
+            }
+            val updateCategoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
+            updateCategoria.nombre = categoria.nombre
+            return ResponseEntity.ok(categoriasRepository.save(updateCategoria))
+        } catch (e: Exception) {
+            throw GeneralBadRequestException(
+                "Error: Insertar Categoria",
+                "Campos incorrectos o nombre existente. ${e.message}"
             )
         }
     }
