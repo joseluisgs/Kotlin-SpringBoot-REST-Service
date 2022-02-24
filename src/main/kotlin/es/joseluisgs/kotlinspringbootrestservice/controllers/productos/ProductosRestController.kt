@@ -114,6 +114,28 @@ class ProductosRestController
         }
     }
 
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long): ResponseEntity<ProductoDTO> {
+        try {
+            val producto = productosRepository.findById(id).orElseGet { throw ProductoNotFoundException(id) }
+            val numberProductos = productosRepository.countByLineaPedido(id)
+            if (numberProductos > 0) {
+                throw ProductoBadRequestException(
+                    "Producto con id $id",
+                    "Está asociado a $numberProductos linea(s) pedido(s)"
+                )
+            } else {
+                productosRepository.delete(producto)
+                return ResponseEntity.ok(productosMapper.toDTO(producto))
+            }
+        } catch (e: Exception) {
+            throw GeneralBadRequestException(
+                "Error: Eliminar Producto",
+                "Id de producto inexistente o asociado a un pedido. ${e.message}"
+            )
+        }
+    }
+
     private fun checkProductoData(nombre: String, precio: Double, categoriaId: Long): Boolean {
         if (nombre.trim().isBlank()) {
             throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
