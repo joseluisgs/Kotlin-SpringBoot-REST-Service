@@ -18,7 +18,7 @@ data class Producto(
     var nombre: String,
     @Min(value = 0, message = "Precio no puede ser negativo")
     var precio: Double,
-    val imagen: String?,
+    var imagen: String?,
     @CreatedDate
     val createdAt: LocalDateTime,
 

@@ -43,12 +43,7 @@ class CategoriasRestController
     @PostMapping("")
     fun create(@RequestBody categoria: CategoriaCreateDTO): ResponseEntity<Categoria> {
         try {
-            if (!checkCategoriaData(categoria.nombre)) {
-                throw ProductoBadRequestException(
-                    "Datos incorrectos",
-                    "El nombre de la categoria no es correcto"
-                )
-            }
+            checkCategoriaData(categoria.nombre)
             val newCategoria = Categoria(categoria.nombre)
             return ResponseEntity.ok(categoriasRepository.save(newCategoria))
         } catch (e: Exception) {
@@ -62,12 +57,7 @@ class CategoriasRestController
     @PutMapping("/{id}")
     fun update(@RequestBody categoria: CategoriaCreateDTO, @PathVariable id: Long): ResponseEntity<Categoria> {
         try {
-            if (!checkCategoriaData(categoria.nombre)) {
-                throw ProductoBadRequestException(
-                    "Datos incorrectos",
-                    "El nombre de la categoria no es correcto"
-                )
-            }
+            checkCategoriaData(categoria.nombre)
             val updateCategoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
             updateCategoria.nombre = categoria.nombre
             return ResponseEntity.ok(categoriasRepository.save(updateCategoria))
@@ -120,10 +110,9 @@ class CategoriasRestController
         }
     }
 
-    private fun checkCategoriaData(nombre: String): Boolean {
+    private fun checkCategoriaData(nombre: String) {
         if (nombre.trim().isBlank()) {
             throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
         }
-        return true
     }
 }
