@@ -59,17 +59,10 @@ class ProductosRestController
     @GetMapping("/{id}")
     fun findById(@PathVariable id: Long): ResponseEntity<ProductoDTO> {
         try {
-            val producto = productosRepository.findById(id)
-            if (producto.isPresent) {
-                return ResponseEntity.ok(productosMapper.toDTO(producto.get()))
-            } else {
-                throw ProductoNotFoundException(id)
-            }
+            val producto = productosRepository.findById(id).get()
+            return ResponseEntity.ok(productosMapper.toDTO(producto))
         } catch (e: Exception) {
-            throw GeneralBadRequestException(
-                "Selección de Datos",
-                "Parámetros de consulta incorrectos o id en formato incorrecto"
-            )
+            throw ProductoNotFoundException(id)
         }
     }
 
@@ -89,8 +82,34 @@ class ProductosRestController
             return ResponseEntity.ok(result)
         } catch (e: Exception) {
             throw GeneralBadRequestException(
-                "Insertar Producto",
-                "Error al insertar el producto. Campos incorrectos. ${e.message}"
+                "Error: Insertar Producto",
+                "Campos incorrectos. ${e.message}"
+            )
+        }
+    }
+
+    @PutMapping("/{id}")
+    fun update(@RequestBody producto: ProductoCreateDTO, @PathVariable id: Long): ResponseEntity<ProductoDTO> {
+        try {
+            if (!checkProductoData(producto.nombre, producto.precio, producto.categoriaId)) {
+                throw ProductoBadRequestException(
+                    "Datos incorrectos",
+                    "El nombre, precio o el identificador de la categoria  " +
+                            "son incorrectos o existe un problema al tratarlos"
+                )
+            }
+            val categoria = categoriasRepository.findById(producto.categoriaId).get()
+            val update = productosRepository.findById(id).orElseGet { throw ProductoNotFoundException(id) }
+            update.nombre = producto.nombre
+            update.precio = producto.precio
+            update.categoria = categoria
+            val result = productosMapper.toDTO(productosRepository.save(update))
+            return ResponseEntity.ok(result)
+
+        } catch (e: Exception) {
+            throw GeneralBadRequestException(
+                "Error: Actualizar Producto",
+                "Campos incorrectos o id inexistente. ${e.message}"
             )
         }
     }

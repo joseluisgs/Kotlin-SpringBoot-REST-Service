@@ -15,9 +15,9 @@ data class Producto(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
     @NotBlank(message = "Nombre no puede estar vacío")
-    val nombre: String,
+    var nombre: String,
     @Min(value = 0, message = "Precio no puede ser negativo")
-    val precio: Double,
+    var precio: Double,
     val imagen: String?,
     @CreatedDate
     val createdAt: LocalDateTime,
