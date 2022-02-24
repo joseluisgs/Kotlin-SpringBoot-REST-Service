@@ -6,13 +6,10 @@ import javax.validation.constraints.NotBlank
 
 data class ProductoDTO(
     val id: Long,
-
     @NotBlank(message = "El nombre no puede estar vacío")
     val nombre: String,
-
     @Min(message = "El precio no puede ser negativo", value = 0)
     val precio: Double,
-
     val imagen: String?,
     val createdAt: String,
     val slug: String,

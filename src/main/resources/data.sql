@@ -1,3 +1,6 @@
+drop sequence if exists hibernate_sequence;
+create sequence hibernate_sequence start with 100 increment by 1;
+
 insert into categoria (id, nombre)
 values (1, 'Comida');
 insert into categoria (id, nombre)

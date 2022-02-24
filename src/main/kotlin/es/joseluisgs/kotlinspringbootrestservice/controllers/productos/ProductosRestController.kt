@@ -1,11 +1,14 @@
 package es.joseluisgs.kotlinspringbootrestservice.controllers.productos
 
 import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
+import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoListDTO
 import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
+import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
 import es.joseluisgs.kotlinspringbootrestservice.repositories.ProductosRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -18,9 +21,11 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping(APIConfig.API_PATH + "/productos")
 // Le aplico DI por constructor
-class ProductosRestController @Autowired constructor(
+class ProductosRestController
+@Autowired constructor(
     private val productosRepository: ProductosRepository,
-    private val productosMapper: ProductosMapper
+    private val productosMapper: ProductosMapper,
+    private val categoriasRepository: CategoriasRepository
 ) {
 
     @GetMapping("")
@@ -67,4 +72,41 @@ class ProductosRestController @Autowired constructor(
             )
         }
     }
+
+    @PostMapping("")
+    fun create(@RequestBody producto: ProductoCreateDTO): ResponseEntity<ProductoDTO> {
+        try {
+            if (!checkProductoData(producto.nombre, producto.precio, producto.categoriaId)) {
+                throw ProductoBadRequestException(
+                    "Datos incorrectos",
+                    "El nombre, precio o el identificador de la categoria  " +
+                            "son incorrectos o existe un problema al tratarlos"
+                )
+            }
+            val categoria = categoriasRepository.findById(producto.categoriaId).get()
+            val producto = productosMapper.fromDTO(producto, categoria)
+            val result = productosMapper.toDTO(productosRepository.save(producto))
+            return ResponseEntity.ok(result)
+        } catch (e: Exception) {
+            throw GeneralBadRequestException(
+                "Insertar Producto",
+                "Error al insertar el producto. Campos incorrectos. ${e.message}"
+            )
+        }
+    }
+
+    private fun checkProductoData(nombre: String, precio: Double, categoriaId: Long): Boolean {
+        if (nombre.trim().isBlank()) {
+            throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
+        }
+        if (precio < 0) {
+            throw ProductoBadRequestException("Precio", "El precio debe ser mayor que 0")
+        }
+        if (!categoriasRepository.findById(categoriaId).isPresent) {
+            throw ProductoBadRequestException("Categoría", "No existe categoría con id $categoriaId")
+        }
+        return true
+    }
+
+
 }
