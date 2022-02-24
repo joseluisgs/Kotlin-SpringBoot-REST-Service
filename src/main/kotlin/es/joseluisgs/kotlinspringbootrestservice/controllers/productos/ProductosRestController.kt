@@ -118,7 +118,7 @@ class ProductosRestController
     fun delete(@PathVariable id: Long): ResponseEntity<ProductoDTO> {
         try {
             val producto = productosRepository.findById(id).orElseGet { throw ProductoNotFoundException(id) }
-            val numberProductos = productosRepository.countByLineaPedido(id)
+            val numberProductos = productosRepository.countByLineasPedido(id)
             if (numberProductos > 0) {
                 throw ProductoBadRequestException(
                     "Producto con id $id",
