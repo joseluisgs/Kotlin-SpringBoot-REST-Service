@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import javax.validation.constraints.Min
 
 
-data class ListProductosPageDTO(
+data class ProductoListDTO(
     val consulta: String = LocalDateTime.now().toString(),
     val project: String = APIConfig.PROJECT_NAME,
     val version: String = APIConfig.API_VERSION,

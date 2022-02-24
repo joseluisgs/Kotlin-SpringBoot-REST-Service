@@ -15,7 +15,6 @@ data class Producto(
     val nombre: String,
     val precio: Double,
     val imagen: String?,
-    val slug: String = nombre.toSlug(),
     @CreatedDate
     val createdAt: LocalDateTime,
 
@@ -25,4 +24,7 @@ data class Producto(
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     val categoria: Categoria
-)
+) {
+    val slug: String
+        get() = nombre.toSlug()
+}
