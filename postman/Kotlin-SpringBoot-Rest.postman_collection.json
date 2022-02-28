@@ -139,6 +139,27 @@
 					"response": []
 				},
 				{
+					"name": "GET BY Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/productos/slug/juice-orange-concentrate",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"productos",
+								"slug",
+								"juice-orange-concentrate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "POST",
 					"request": {
 						"method": "POST",

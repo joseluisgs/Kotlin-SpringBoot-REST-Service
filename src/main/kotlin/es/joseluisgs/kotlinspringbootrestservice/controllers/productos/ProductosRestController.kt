@@ -153,6 +153,19 @@ class ProductosRestController
         }
     }
 
+    @GetMapping("/slug/{slug}")
+    fun findById(@PathVariable slug: String): ResponseEntity<ProductoDTO> {
+        try {
+            val producto = productosRepository.findAll().first { it.slug == slug }
+            return ResponseEntity.ok(productosMapper.toDTO(producto))
+        } catch (e: Exception) {
+            throw ProductoBadRequestException(
+                "No encontrado",
+                "No existe ningún producto con slug: $slug"
+            )
+        }
+    }
+
     private fun checkProductoData(nombre: String, precio: Double, categoriaId: Long) {
         if (nombre.trim().isBlank()) {
             throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
