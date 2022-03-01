@@ -6,7 +6,6 @@ import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaProduct
 import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaNotFoundException
-import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
@@ -112,7 +111,7 @@ class CategoriasRestController
 
     private fun checkCategoriaData(nombre: String) {
         if (nombre.trim().isBlank()) {
-            throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
+            throw CategoriaBadRequestException("Nombre", "El nombre es obligatorio")
         }
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.data.repository.findByIdOrNull
 @DataJpaTest
 // @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class CategoriasRepositoryJPATest
+class CategoriasRepositoryTest
 @Autowired constructor(
     private val entityManager: TestEntityManager,
     private val categoriasRepository: CategoriasRepository
@@ -65,7 +65,7 @@ class CategoriasRepositoryJPATest
         val categoria = Categoria(nombre = "Categoria 99")
         entityManager.persist(categoria)
         entityManager.flush()
-        var res = categoriasRepository.findByIdOrNull(categoria.id)!!
+        val res = categoriasRepository.findByIdOrNull(categoria.id)!!
         categoriasRepository.delete(res)
         categoriasRepository.findByIdOrNull(categoria.id)?.let {
             assertEquals(it, null)
