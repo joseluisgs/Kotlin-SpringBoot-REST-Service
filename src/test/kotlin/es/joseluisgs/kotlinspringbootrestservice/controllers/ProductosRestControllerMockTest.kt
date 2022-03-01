@@ -1,0 +1,292 @@
+package es.joseluisgs.kotlinspringbootrestservice.controllers
+
+import es.joseluisgs.kotlinspringbootrestservice.controllers.productos.ProductosRestController
+import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoCreateDTO
+import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
+import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoListDTO
+import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
+import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoNotFoundException
+import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
+import es.joseluisgs.kotlinspringbootrestservice.models.Producto
+import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.ProductosRepository
+import es.joseluisgs.kotlinspringbootrestservice.services.storage.StorageService
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
+import org.mockito.InjectMocks
+import org.mockito.Mockito
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
+import java.util.*
+
+@SpringBootTest
+class ProductosRestControllerMockTest
+@Autowired constructor(
+    @InjectMocks private val productosRestController: ProductosRestController,
+    @MockBean private val productosRepository: ProductosRepository,
+    @MockBean private val productosMapper: ProductosMapper,
+    @MockBean private val categoriasRepository: CategoriasRepository,
+    @MockBean private val storageService: StorageService
+) {
+    final val categoriaTest = Categoria(100, "Categoria 100")
+    final val productoTest = Producto("Producto 100", 100.0, categoriaTest)
+    final val productoDTOTest = ProductoDTO(
+        100,
+        productoTest.nombre,
+        productoTest.precio,
+        productoTest.imagen,
+        productoTest.createdAt,
+        productoTest.slug,
+        productoTest.categoria.nombre
+    )
+
+    private final val productosTest = listOf(productoTest)
+    private final val productosDTOTests = listOf(productoDTOTest)
+
+    @Test
+    fun getAllTest() {
+        val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
+        val pro: Page<Producto> = Mockito.mock(Page::class.java) as Page<Producto>
+
+        val result = ProductoListDTO(
+            data = productosDTOTests,
+            currentPage = 0,
+            totalPages = 1,
+            totalElements = 1,
+            sort = "id"
+        )
+
+        Mockito.`when`(productosRepository.findAll(paging)).thenReturn(pro)
+        Mockito.`when`(productosMapper.toDTO(productosTest)).thenReturn(productosDTOTests)
+
+        val response = productosRestController.getAll(null, 0, 10, "id")
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+        )
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .findAll(paging)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(listOf())
+    }
+
+    @Test
+    fun getAllNameTest() {
+        val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
+        val pro: Page<Producto?> = Mockito.mock(Page::class.java) as Page<Producto?>
+
+        val result = ProductoListDTO(
+            data = productosDTOTests,
+            currentPage = 0,
+            totalPages = 1,
+            totalElements = 1,
+            sort = "id"
+        )
+
+        val nombre = "nombre"
+        Mockito.`when`(productosRepository.findByNombreContainsIgnoreCase(nombre, paging)).thenReturn(pro)
+        Mockito.`when`(productosMapper.toDTO(productosTest)).thenReturn(productosDTOTests)
+
+        val response = productosRestController.getAll(nombre, 0, 10, "id")
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+        )
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .findByNombreContainsIgnoreCase(nombre, paging)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(listOf())
+    }
+
+    @Test
+    fun getAllNameExceptionTest() {
+        val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.getAll("paparruchas", 0, 10, "id")
+        }
+        assertTrue(ex.message!!.contains("Parámetros de consulta incorrectos"))
+    }
+
+    @Test
+    fun findByIdTest() {
+
+        Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.of(productoTest))
+        Mockito.`when`(productosMapper.toDTO(productoTest)).thenReturn(productoDTOTest)
+
+        val response = productosRestController.findById(100)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(productoDTOTest, res) }
+        )
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .findById(100)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+    }
+
+    @Test
+    fun findByIdNotFoundTest() {
+        Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.empty())
+
+        val ex = assertThrows<ProductoNotFoundException> {
+            productosRestController.findById(100)
+        }
+        assertTrue(ex.message!!.contains("100"))
+    }
+
+    @Test
+    fun createTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, productoTest.precio, productoTest.categoria.id)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.of(productoTest.categoria))
+        Mockito.`when`(productosMapper.fromDTO(createDTO, productoTest.categoria))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosRepository.save(productoTest)).thenReturn(productoTest)
+        Mockito.`when`(productosMapper.toDTO(productoTest)).thenReturn(productoDTOTest)
+
+        val response = productosRestController.create(createDTO)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(productoDTOTest, res) }
+        )
+        Mockito.verify(categoriasRepository, Mockito.times(2))
+            .findById(productoTest.categoria.id)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .fromDTO(createDTO, productoTest.categoria)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .save(productoTest)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+    }
+
+    // Lo voy a hacer con solo el precio, pero deberia hacerse con el nombre, precio y categoria
+    @Test
+    fun createPrecioExceptionTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, -19.00, productoTest.categoria.id)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.empty())
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.create(createDTO)
+        }
+        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+    }
+
+    @Test
+    fun createNombreExceptionTest() {
+        val createDTO = ProductoCreateDTO("", 9.00, productoTest.categoria.id)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.empty())
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.create(createDTO)
+        }
+        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+    }
+
+    @Test
+    fun createCategoriaExceptionTest() {
+        val createDTO = ProductoCreateDTO("pepe", 9.00, -9)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.empty())
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.create(createDTO)
+        }
+        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+    }
+
+    @Test
+    fun updateTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, productoTest.precio, productoTest.categoria.id)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.of(productoTest.categoria))
+        Mockito.`when`(productosRepository.findById(100))
+            .thenReturn(Optional.of(productoTest))
+        Mockito.`when`(productosMapper.fromDTO(createDTO, productoTest.categoria))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosRepository.save(productoTest)).thenReturn(productoTest)
+        Mockito.`when`(productosMapper.toDTO(productoTest)).thenReturn(productoDTOTest)
+
+        val response = productosRestController.update(createDTO, 100)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(productoDTOTest, res) }
+        )
+        Mockito.verify(categoriasRepository, Mockito.times(2))
+            .findById(productoTest.categoria.id)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .findById(100)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .save(productoTest)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+    }
+
+    @Test
+    fun updateExceptionTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, productoTest.precio, productoTest.categoria.id)
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.empty())
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.update(createDTO, 100)
+        }
+        assertTrue(ex.message!!.contains("Error: Actualizar Producto"))
+    }
+
+    @Test
+    fun deleteTest() {
+        Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.of(productoTest))
+        Mockito.`when`(productosMapper.toDTO(productoTest)).thenReturn(productoDTOTest)
+
+        val response = productosRestController.delete(100)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(productoDTOTest, res) }
+        )
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .findById(100)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .delete(productoTest)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+    }
+
+    @Test
+    fun deleteExceptionTest() {
+        Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.empty())
+
+        val ex = assertThrows<GeneralBadRequestException> {
+            productosRestController.delete(100)
+        }
+        assertTrue(ex.message!!.contains("Error: Eliminar Producto"))
+    }
+}
