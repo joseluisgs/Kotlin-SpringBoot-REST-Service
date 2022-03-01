@@ -2,25 +2,22 @@ package es.joseluisgs.kotlinspringbootrestservice.repositories
 
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.data.repository.findByIdOrNull
 
 @DataJpaTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class CategoriasRepositoryJPATest
 @Autowired constructor(
     private val entityManager: TestEntityManager,
     private val categoriasRepository: CategoriasRepository
 ) {
-    @BeforeAll
+    /*@BeforeAll
     fun setup() {
         println(">> Setup")
     }
@@ -28,7 +25,7 @@ class CategoriasRepositoryJPATest
     @AfterAll
     fun teardown() {
         println(">> Tear down")
-    }
+    }*/
 
     @Test
     // @Order(1)
