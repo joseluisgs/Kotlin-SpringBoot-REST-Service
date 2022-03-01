@@ -9,9 +9,11 @@ import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
 import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import org.mockito.InjectMocks
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,8 +24,7 @@ import java.util.*
 
 
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class CategoriasRestControllerTest
+class CategoriasRestControllerMockTest
 @Autowired constructor(
     @InjectMocks private val categoriasRestController: CategoriasRestController,
     @MockBean private val categoriasRepository: CategoriasRepository,
@@ -33,7 +34,6 @@ class CategoriasRestControllerTest
     private val categoriaTest = Categoria(100, "Categoria 100")
 
     @Test
-    @Order(1)
     fun getAllTest() {
         Mockito.`when`(categoriasRepository.findAll())
             .thenReturn(
@@ -54,7 +54,6 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(2)
     fun findByIdTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.of(categoriaTest))
@@ -72,13 +71,12 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(3)
     fun findByIdNotFoundTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.empty())
 
         val ex = assertThrows<CategoriaNotFoundException> {
-            val response = categoriasRestController.getById(100)
+            categoriasRestController.getById(100)
         }
         assertTrue(ex.message!!.contains("100"))
 
@@ -87,7 +85,6 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(4)
     fun createTest() {
         Mockito.`when`(categoriasRepository.save(Categoria("Categoria 100")))
             .thenReturn(categoriaTest)
@@ -106,19 +103,17 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(5)
     fun createTestBlackNameTest() {
         Mockito.`when`(categoriasRepository.save(Categoria("")))
             .thenReturn(Categoria(100, ""))
 
         val ex = assertThrows<GeneralBadRequestException> {
-            val response = categoriasRestController.create(CategoriaCreateDTO(""))
+            categoriasRestController.create(CategoriaCreateDTO(""))
         }
         assertTrue(ex.message!!.contains("nombre es obligatorio"))
     }
 
     @Test
-    @Order(6)
     fun updateTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.of(categoriaTest))
@@ -141,13 +136,12 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(7)
     fun updateTestNotFoundTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.empty())
 
         val ex = assertThrows<GeneralBadRequestException> {
-            val response = categoriasRestController.update(CategoriaCreateDTO("Categoria 100"), 100)
+            categoriasRestController.update(CategoriaCreateDTO("Categoria 100"), 100)
         }
         assertTrue(ex.message!!.contains("100"))
 
@@ -156,7 +150,6 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(8)
     fun deleteTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.of(categoriaTest))
@@ -182,13 +175,12 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(9)
     fun deleteTestNotFoundTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.empty())
 
         val ex = assertThrows<GeneralBadRequestException> {
-            val response = categoriasRestController.delete(100)
+            categoriasRestController.delete(100)
         }
         assertTrue(ex.message!!.contains("100"))
 
@@ -197,7 +189,6 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(10)
     fun deleteTestHasProductosTest() {
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.of(categoriaTest))
@@ -205,7 +196,7 @@ class CategoriasRestControllerTest
             .thenReturn(1)
 
         val ex = assertThrows<GeneralBadRequestException> {
-            val response = categoriasRestController.delete(100)
+            categoriasRestController.delete(100)
         }
         assertTrue(ex.message!!.contains("100"))
 
@@ -216,7 +207,6 @@ class CategoriasRestControllerTest
     }
 
     @Test
-    @Order(11)
     fun getProductosTest() {
         val producto = Producto("Producto 100", 100.0, categoriaTest)
         val productoDTO = ProductoDTO(
