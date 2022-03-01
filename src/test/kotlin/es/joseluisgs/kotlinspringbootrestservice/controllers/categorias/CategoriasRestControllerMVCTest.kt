@@ -8,7 +8,6 @@ import es.joseluisgs.kotlinspringbootrestservice.models.Producto
 import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
-import org.mockito.InjectMocks
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
@@ -30,7 +29,6 @@ import java.util.*
 class CategoriasRestControllerMVCTest
 @Autowired constructor(
     @Autowired val mockMvc: MockMvc,
-    @InjectMocks private val categoriasRestController: CategoriasRestController,
     @MockBean private val categoriasRepository: CategoriasRepository,
     @MockBean private val productosMapper: ProductosMapper
 ) {
@@ -93,7 +91,7 @@ class CategoriasRestControllerMVCTest
     fun createTest() {
         val createDTO = CategoriaCreateDTO(categoriaTest.nombre)
 
-        val json = jsonCategoriaCreateDTO?.write(createDTO)?.json.toString()
+        val json = jsonCategoriaCreateDTO!!.write(createDTO).json
 
         Mockito.`when`(categoriasRepository.save(Categoria(categoriaTest.nombre)))
             .thenReturn(categoriaTest)
@@ -117,7 +115,7 @@ class CategoriasRestControllerMVCTest
     fun createTestBlackNameTest() {
         val createDTO = CategoriaCreateDTO("")
 
-        val json = jsonCategoriaCreateDTO?.write(createDTO)?.json.toString()
+        val json = jsonCategoriaCreateDTO!!.write(createDTO).json
 
         mockMvc.perform(
             post("/rest/categorias")
@@ -136,8 +134,7 @@ class CategoriasRestControllerMVCTest
     fun updateCategoria() {
         val updateDTO = CategoriaCreateDTO(categoriaTest.nombre)
 
-        val json = jsonCategoriaCreateDTO?.write(updateDTO)?.json.toString()
-        println(json)
+        val json = jsonCategoriaCreateDTO!!.write(updateDTO).json
 
         Mockito.`when`(categoriasRepository.findById(categoriaTest.id))
             .thenReturn(Optional.of(categoriaTest))
@@ -166,7 +163,7 @@ class CategoriasRestControllerMVCTest
     fun updateCategoriaNotFoundTest() {
         val updateDTO = CategoriaCreateDTO(categoriaTest.nombre)
 
-        val json = jsonCategoriaCreateDTO?.write(updateDTO)?.json.toString()
+        val json = jsonCategoriaCreateDTO!!.write(updateDTO).json
         println(json)
 
         Mockito.`when`(categoriasRepository.findById(categoriaTest.id))
@@ -191,7 +188,7 @@ class CategoriasRestControllerMVCTest
     fun updateBlackNameTest() {
         val updateDTO = CategoriaCreateDTO("")
 
-        val json = jsonCategoriaCreateDTO?.write(updateDTO)?.json.toString()
+        val json = jsonCategoriaCreateDTO!!.write(updateDTO).json
         println(json)
 
         Mockito.`when`(categoriasRepository.findById(categoriaTest.id))

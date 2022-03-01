@@ -154,7 +154,7 @@ class ProductosRestController
     }
 
     @GetMapping("/slug/{slug}")
-    fun findById(@PathVariable slug: String): ResponseEntity<ProductoDTO> {
+    fun findBySlug(@PathVariable slug: String): ResponseEntity<ProductoDTO> {
         val producto =
             productosRepository.findAll().firstOrNull { it.slug == slug }
                 ?: throw ProductoBadRequestException(
