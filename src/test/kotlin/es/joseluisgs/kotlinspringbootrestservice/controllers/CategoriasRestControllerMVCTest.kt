@@ -7,6 +7,7 @@ import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
 import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
+import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
 import org.mockito.Mockito
@@ -49,6 +50,7 @@ class CategoriasRestControllerMVCTest
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("\$", hasSize<Any>(1)))
             .andExpect(jsonPath("\$.[0].id").value(categoriaTest.id))
             .andExpect(jsonPath("\$.[0].nombre").value(categoriaTest.nombre))
             .andReturn()
@@ -302,6 +304,12 @@ class CategoriasRestControllerMVCTest
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("\$.id").value(categoriaTest.id))
+            .andExpect(jsonPath("\$.nombre").value(categoriaTest.nombre))
+            .andExpect(jsonPath("\$.productos", hasSize<Any>(1)))
+            .andExpect(jsonPath("\$.productos[0].id").value(productoDTO.id))
+            .andExpect(jsonPath("\$.productos[0].nombre").value(productoDTO.nombre))
+            .andExpect(jsonPath("\$.productos[0].precio").value(productoDTO.precio))
             .andReturn()
 
         Mockito.verify(categoriasRepository, Mockito.times(1))
