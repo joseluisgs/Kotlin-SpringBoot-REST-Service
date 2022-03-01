@@ -1,12 +1,11 @@
-package es.joseluisgs.kotlinspringbootrestservice.controllers
+package es.joseluisgs.kotlinspringbootrestservice.controllers.categorias
 
-import es.joseluisgs.kotlinspringbootrestservice.controllers.categorias.CategoriasRestController
 import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
-import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
-import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
@@ -179,7 +178,7 @@ class CategoriasRestControllerMVCTest
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isNotFound)
             .andReturn()
 
         Mockito.verify(categoriasRepository, Mockito.times(1))
@@ -244,7 +243,7 @@ class CategoriasRestControllerMVCTest
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isNotFound)
             .andReturn()
 
         Mockito.verify(categoriasRepository, Mockito.times(1))

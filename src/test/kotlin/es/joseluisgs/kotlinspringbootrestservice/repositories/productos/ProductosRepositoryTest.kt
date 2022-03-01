@@ -1,4 +1,4 @@
-package es.joseluisgs.kotlinspringbootrestservice.repositories
+package es.joseluisgs.kotlinspringbootrestservice.repositories.productos
 
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto

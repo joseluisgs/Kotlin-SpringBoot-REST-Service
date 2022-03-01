@@ -1,16 +1,15 @@
-package es.joseluisgs.kotlinspringbootrestservice.controllers
+package es.joseluisgs.kotlinspringbootrestservice.controllers.productos
 
-import es.joseluisgs.kotlinspringbootrestservice.controllers.productos.ProductosRestController
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoListDTO
-import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
+import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoNotFoundException
-import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
-import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
-import es.joseluisgs.kotlinspringbootrestservice.repositories.ProductosRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.productos.ProductosRepository
 import es.joseluisgs.kotlinspringbootrestservice.services.storage.StorageService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -114,7 +113,7 @@ class ProductosRestControllerMockTest
     fun getAllNameExceptionTest() {
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoBadRequestException> {
             productosRestController.getAll("paparruchas", 0, 10, "id")
         }
         assertTrue(ex.message!!.contains("Parámetros de consulta incorrectos"))
@@ -167,7 +166,7 @@ class ProductosRestControllerMockTest
             { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
             { assertEquals(productoDTOTest, res) }
         )
-        Mockito.verify(categoriasRepository, Mockito.times(2))
+        Mockito.verify(categoriasRepository, Mockito.times(1))
             .findById(productoTest.categoria.id)
         Mockito.verify(productosMapper, Mockito.times(1))
             .fromDTO(createDTO, productoTest.categoria)
@@ -185,10 +184,10 @@ class ProductosRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoBadRequestException> {
             productosRestController.create(createDTO)
         }
-        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+        assertTrue(ex.message!!.contains("El precio debe ser mayor que 0"))
     }
 
     @Test
@@ -198,10 +197,10 @@ class ProductosRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoBadRequestException> {
             productosRestController.create(createDTO)
         }
-        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+        assertTrue(ex.message!!.contains("El nombre es obligatorio"))
     }
 
     @Test
@@ -211,10 +210,10 @@ class ProductosRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoBadRequestException> {
             productosRestController.create(createDTO)
         }
-        assertTrue(ex.message!!.contains("Error: Insertar Producto"))
+        assertTrue(ex.message!!.contains("No existe categoría con id"))
     }
 
     @Test
@@ -237,7 +236,7 @@ class ProductosRestControllerMockTest
             { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
             { assertEquals(productoDTOTest, res) }
         )
-        Mockito.verify(categoriasRepository, Mockito.times(2))
+        Mockito.verify(categoriasRepository, Mockito.times(1))
             .findById(productoTest.categoria.id)
         Mockito.verify(productosRepository, Mockito.times(1))
             .findById(100)
@@ -254,10 +253,10 @@ class ProductosRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoBadRequestException> {
             productosRestController.update(createDTO, 100)
         }
-        assertTrue(ex.message!!.contains("Error: Actualizar Producto"))
+        assertTrue(ex.message!!.contains("No existe categoría con id"))
     }
 
     @Test
@@ -284,9 +283,9 @@ class ProductosRestControllerMockTest
     fun deleteExceptionTest() {
         Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<ProductoNotFoundException> {
             productosRestController.delete(100)
         }
-        assertTrue(ex.message!!.contains("Error: Eliminar Producto"))
+        assertTrue(ex.message!!.contains("No se puede encontrar el producto"))
     }
 }

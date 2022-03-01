@@ -1,14 +1,13 @@
-package es.joseluisgs.kotlinspringbootrestservice.controllers
+package es.joseluisgs.kotlinspringbootrestservice.controllers.categorias
 
-import es.joseluisgs.kotlinspringbootrestservice.controllers.categorias.CategoriasRestController
 import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
-import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
+import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaNotFoundException
-import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
-import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -107,7 +106,7 @@ class CategoriasRestControllerMockTest
         Mockito.`when`(categoriasRepository.save(Categoria("")))
             .thenReturn(Categoria(100, ""))
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<CategoriaBadRequestException> {
             categoriasRestController.create(CategoriaCreateDTO(""))
         }
         assertTrue(ex.message!!.contains("nombre es obligatorio"))
@@ -140,7 +139,7 @@ class CategoriasRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<CategoriaNotFoundException> {
             categoriasRestController.update(CategoriaCreateDTO("Categoria 100"), 100)
         }
         assertTrue(ex.message!!.contains("100"))
@@ -179,7 +178,7 @@ class CategoriasRestControllerMockTest
         Mockito.`when`(categoriasRepository.findById(100))
             .thenReturn(Optional.empty())
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<CategoriaNotFoundException> {
             categoriasRestController.delete(100)
         }
         assertTrue(ex.message!!.contains("100"))
@@ -195,7 +194,7 @@ class CategoriasRestControllerMockTest
         Mockito.`when`(categoriasRepository.countByProductos(100))
             .thenReturn(1)
 
-        val ex = assertThrows<GeneralBadRequestException> {
+        val ex = assertThrows<CategoriaBadRequestException> {
             categoriasRestController.delete(100)
         }
         assertTrue(ex.message!!.contains("100"))
