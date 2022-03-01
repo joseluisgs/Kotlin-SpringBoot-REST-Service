@@ -31,7 +31,7 @@ class CategoriasRestControllerMockTest
     @MockBean private val productosMapper: ProductosMapper
 ) {
 
-    private val categoriaTest = Categoria(100, "Categoria 100")
+    private final val categoriaTest = Categoria(100, "Categoria 100")
 
     @Test
     fun getAllTest() {
