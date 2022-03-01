@@ -14,7 +14,7 @@ class ProductosMapper {
             producto.nombre,
             producto.precio,
             producto.imagen,
-            producto.createdAt.toString(),
+            producto.createdAt,
             producto.slug,
             producto.categoria.nombre
         )

@@ -17,6 +17,9 @@ class CategoriasRepositoryTest
     private val entityManager: TestEntityManager,
     private val categoriasRepository: CategoriasRepository
 ) {
+
+    private val categoriaTest = Categoria(nombre = "Categoria 99")
+    private val productoTest = Producto(nombre = "Producto 99", 99.9, categoriaTest)
     /*@BeforeAll
     fun setup() {
         println(">> Setup")
@@ -30,68 +33,58 @@ class CategoriasRepositoryTest
     @Test
     // @Order(1)
     fun findByIdTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        entityManager.persist(categoria)
+        entityManager.persist(categoriaTest)
         entityManager.flush()
-        val res = categoriasRepository.findByIdOrNull(categoria.id)!!
-        assertEquals(res, categoria)
+        val res = categoriasRepository.findByIdOrNull(categoriaTest.id)!!
+        assertEquals(res, categoriaTest)
     }
 
     @Test
     // @Order(2)
     fun saveTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        //entityManager.persist(categoria)
-        //entityManager.flush()
-        val found = categoriasRepository.save(categoria)
-        assertEquals(found, categoria)
+        val found = categoriasRepository.save(categoriaTest)
+        assertEquals(found, categoriaTest)
     }
 
     @Test
     // @Order(3)
     fun updateTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        entityManager.persist(categoria)
+        entityManager.persist(categoriaTest)
         entityManager.flush()
-        var res = categoriasRepository.findByIdOrNull(categoria.id)!!
+        var res = categoriasRepository.findByIdOrNull(categoriaTest.id)!!
         res.nombre = "Categoria 100"
-        res = categoriasRepository.save(categoria)
-        assertEquals(res, categoria)
+        res = categoriasRepository.save(categoriaTest)
+        assertEquals(res, categoriaTest)
     }
 
     @Test
     // @Order(4)
     fun deleteTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        entityManager.persist(categoria)
+        entityManager.persist(categoriaTest)
         entityManager.flush()
-        val res = categoriasRepository.findByIdOrNull(categoria.id)!!
+        val res = categoriasRepository.findByIdOrNull(categoriaTest.id)!!
         categoriasRepository.delete(res)
-        categoriasRepository.findByIdOrNull(categoria.id)?.let {
+        categoriasRepository.findByIdOrNull(categoriaTest.id)?.let {
             assertEquals(it, null)
         }
     }
 
     @Test
     fun countByProductosTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(nombre = "Producto 99", 99.9, categoria)
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
-        val cate = categoriasRepository.findByIdOrNull(categoria.id)!!
+        val cate = categoriasRepository.findByIdOrNull(categoriaTest.id)!!
         val res = categoriasRepository.countByProductos(cate.id)
         assertEquals(res, 1)
     }
 
     @Test
     fun findProductosByCategoria() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(nombre = "Producto 99", 99.9, categoria)
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
-        val res = categoriasRepository.findProductosByCategoria(categoria.id)
-        assertEquals(res, listOf(producto))
+        val res = categoriasRepository.findProductosByCategoria(categoriaTest.id)
+        assertEquals(res, listOf(productoTest))
     }
 }

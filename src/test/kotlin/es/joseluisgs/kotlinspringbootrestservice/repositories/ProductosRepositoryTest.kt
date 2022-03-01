@@ -15,94 +15,67 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 
 @DataJpaTest
-class ProductosRepositoryTest @Autowired constructor(
+class ProductosRepositoryTest
+@Autowired constructor(
     private val entityManager: TestEntityManager,
     private val productosRepository: ProductosRepository
 ) {
+    private val categoriaTest = Categoria(nombre = "Categoria 99")
+    private val productoTest = Producto(nombre = "Producto 99", precio = 99.99, categoria = categoriaTest)
 
     @Test
     fun findByIdTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(
-            nombre = "Producto 1",
-            precio = 10.0,
-            categoria = categoria
-        )
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
-        val res = productosRepository.findByIdOrNull(producto.id)!!
-        assertEquals(res, producto)
-        assert(res.nombre == producto.nombre)
+        val res = productosRepository.findByIdOrNull(productoTest.id)!!
+        assertEquals(res, productoTest)
+        assert(res.nombre == productoTest.nombre)
     }
 
     @Test
     fun saveTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(
-            nombre = "Producto 1",
-            precio = 10.0,
-            categoria = categoria
-        )
-        entityManager.persist(categoria)
+        entityManager.persist(categoriaTest)
         entityManager.flush()
-        val res = productosRepository.save(producto)
-        assertEquals(res, producto)
-        assert(res.nombre == producto.nombre)
+        val res = productosRepository.save(productoTest)
+        assertEquals(res, productoTest)
+        assert(res.nombre == productoTest.nombre)
     }
 
     @Test
     fun updateTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(
-            nombre = "Producto 99",
-            precio = 10.0,
-            categoria = categoria
-        )
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
-        var res = productosRepository.findByIdOrNull(producto.id)!!
+        var res = productosRepository.findByIdOrNull(productoTest.id)!!
         res.nombre = "Producto 100"
         res = productosRepository.save(res)
         assertAll(
-            { assertEquals(res, producto) },
-            { assert(res.nombre == producto.nombre) }
+            { assertEquals(res, productoTest) },
+            { assert(res.nombre == productoTest.nombre) }
         )
     }
 
     @Test
     fun deleteTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(
-            nombre = "Producto 99",
-            precio = 10.0,
-            categoria = categoria
-        )
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
-        productosRepository.delete(producto)
-        productosRepository.findByIdOrNull(producto.id)?.let {
+        productosRepository.delete(productoTest)
+        productosRepository.findByIdOrNull(productoTest.id)?.let {
             assertEquals(it, null)
         }
     }
 
     @Test
     fun findByNombreContainsIgnoreCaseTest() {
-        val categoria = Categoria(nombre = "Categoria 99")
-        val producto = Producto(
-            nombre = "Producto 99",
-            precio = 10.0,
-            categoria = categoria
-        )
-        entityManager.persist(categoria)
-        entityManager.persist(producto)
+        entityManager.persist(categoriaTest)
+        entityManager.persist(productoTest)
         entityManager.flush()
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
         val res = productosRepository.findByNombreContainsIgnoreCase("producto", paging)
         assertAll(
-            { assertTrue(res.content.contains(producto)) },
+            { assertTrue(res.content.contains(productoTest)) },
             { assertEquals(res.totalElements, 1) }
         )
     }

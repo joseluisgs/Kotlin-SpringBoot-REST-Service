@@ -2,10 +2,12 @@ package es.joseluisgs.kotlinspringbootrestservice.controllers
 
 import es.joseluisgs.kotlinspringbootrestservice.controllers.categorias.CategoriasRestController
 import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaCreateDTO
+import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
 import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
+import es.joseluisgs.kotlinspringbootrestservice.models.Producto
 import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -27,6 +29,8 @@ class CategoriasRestControllerTest
     @MockBean private val categoriasRepository: CategoriasRepository,
     @MockBean private val productosMapper: ProductosMapper
 ) {
+
+    private val categoriaTest = Categoria(100, "Categoria 100")
 
     @Test
     @Order(1)
@@ -53,11 +57,8 @@ class CategoriasRestControllerTest
     @Order(2)
     fun findByIdTest() {
         Mockito.`when`(categoriasRepository.findById(100))
-            .thenReturn(
-                Optional.of(
-                    Categoria(100, "Categoria 100")
-                )
-            )
+            .thenReturn(Optional.of(categoriaTest))
+
         val response = categoriasRestController.getById(100)
         val res = response.body
         assertAll(
@@ -89,7 +90,7 @@ class CategoriasRestControllerTest
     @Order(4)
     fun createTest() {
         Mockito.`when`(categoriasRepository.save(Categoria("Categoria 100")))
-            .thenReturn(Categoria(100, "Categoria 100"))
+            .thenReturn(categoriaTest)
 
         val response = categoriasRestController.create(CategoriaCreateDTO("Categoria 100"))
         val res = response.body
@@ -120,9 +121,9 @@ class CategoriasRestControllerTest
     @Order(6)
     fun updateTest() {
         Mockito.`when`(categoriasRepository.findById(100))
-            .thenReturn(Optional.of(Categoria(100, "Categoria 100")))
-        Mockito.`when`(categoriasRepository.save(Categoria(100, "Categoria 100")))
-            .thenReturn(Categoria(100, "Categoria 100"))
+            .thenReturn(Optional.of(categoriaTest))
+        Mockito.`when`(categoriasRepository.save(categoriaTest))
+            .thenReturn(categoriaTest)
 
         val response = categoriasRestController.update(CategoriaCreateDTO("Categoria 100"), 100)
         val res = response.body
@@ -136,7 +137,7 @@ class CategoriasRestControllerTest
         Mockito.verify(categoriasRepository, Mockito.times(1))
             .findById(100)
         Mockito.verify(categoriasRepository, Mockito.times(1))
-            .save(Categoria(100, "Categoria 100"))
+            .save(categoriaTest)
     }
 
     @Test
@@ -158,7 +159,7 @@ class CategoriasRestControllerTest
     @Order(8)
     fun deleteTest() {
         Mockito.`when`(categoriasRepository.findById(100))
-            .thenReturn(Optional.of(Categoria(100, "Categoria 100")))
+            .thenReturn(Optional.of(categoriaTest))
 
         Mockito.`when`(categoriasRepository.countByProductos(100))
             .thenReturn(0)
@@ -177,7 +178,7 @@ class CategoriasRestControllerTest
         Mockito.verify(categoriasRepository, Mockito.times(1))
             .countByProductos(100)
         Mockito.verify(categoriasRepository, Mockito.times(1))
-            .delete(Categoria(100, "Categoria 100"))
+            .delete(categoriaTest)
     }
 
     @Test
@@ -199,7 +200,7 @@ class CategoriasRestControllerTest
     @Order(10)
     fun deleteTestHasProductosTest() {
         Mockito.`when`(categoriasRepository.findById(100))
-            .thenReturn(Optional.of(Categoria(100, "Categoria 100")))
+            .thenReturn(Optional.of(categoriaTest))
         Mockito.`when`(categoriasRepository.countByProductos(100))
             .thenReturn(1)
 
@@ -212,5 +213,46 @@ class CategoriasRestControllerTest
             .findById(100)
         Mockito.verify(categoriasRepository, Mockito.times(1))
             .countByProductos(100)
+    }
+
+    @Test
+    @Order(11)
+    fun getProductosTest() {
+        val producto = Producto("Producto 100", 100.0, categoriaTest)
+        val productoDTO = ProductoDTO(
+            100,
+            producto.nombre,
+            producto.precio,
+            producto.imagen,
+            producto.createdAt,
+            producto.slug,
+            producto.categoria.nombre
+        )
+
+        val productos = listOf(producto)
+        val productosDTO = listOf(productoDTO)
+
+        Mockito.`when`(categoriasRepository.findById(100))
+            .thenReturn(Optional.of(categoriaTest))
+        Mockito.`when`(categoriasRepository.findProductosByCategoria(100))
+            .thenReturn(productos)
+        Mockito.`when`(productosMapper.toDTO(productos))
+            .thenReturn(productosDTO)
+
+        val response = categoriasRestController.getProductos(100)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(1, res?.productos?.size) },
+            { assertEquals("Producto 100", res?.productos?.get(0)?.nombre) }
+        )
+
+        Mockito.verify(categoriasRepository, Mockito.times(1))
+            .findById(100)
+        Mockito.verify(categoriasRepository, Mockito.times(1))
+            .findProductosByCategoria(100)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productos)
     }
 }
