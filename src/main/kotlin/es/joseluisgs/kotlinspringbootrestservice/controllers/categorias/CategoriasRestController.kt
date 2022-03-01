@@ -73,7 +73,7 @@ class CategoriasRestController
     fun delete(@PathVariable id: Long): ResponseEntity<Categoria> {
         try {
             val categoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
-            val numberProductos = categoriasRepository.countByPedidos(id)
+            val numberProductos = categoriasRepository.countByProductos(id)
             if (numberProductos > 0) {
                 throw CategoriaBadRequestException(
                     "Categoria con id $id",
