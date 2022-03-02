@@ -264,6 +264,7 @@ class ProductosRestControllerMockTest
     fun deleteTest() {
         Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.of(productoTest))
         Mockito.`when`(productosMapper.toDTO(productoTest)).thenReturn(productoDTOTest)
+        Mockito.doNothing().`when`(productosRepository).delete(productoTest)
 
         val response = productosRestController.delete(100)
         val res = response.body
@@ -278,6 +279,8 @@ class ProductosRestControllerMockTest
             .delete(productoTest)
         Mockito.verify(productosMapper, Mockito.times(1))
             .toDTO(productoTest)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .delete(productoTest)
     }
 
     @Test

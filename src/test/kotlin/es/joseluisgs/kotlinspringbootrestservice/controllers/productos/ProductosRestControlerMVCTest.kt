@@ -316,6 +316,8 @@ class ProductosRestControlerMVCTest
     fun deleteExceptionTest() {
         Mockito.`when`(productosRepository.findById(100)).thenReturn(Optional.empty())
 
+        Mockito.doNothing().`when`(productosRepository).delete(productoTest)
+
         mockMvc.perform(
             delete("/rest/productos/100")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -326,6 +328,9 @@ class ProductosRestControlerMVCTest
 
         Mockito.verify(productosRepository, Mockito.times(1))
             .findById(100)
+
+        Mockito.verify(productosRepository, Mockito.times(0))
+            .delete(productoTest)
     }
 
     @Test
