@@ -26,7 +26,9 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
+import org.springframework.mock.web.MockMultipartFile
 import java.util.*
+
 
 @SpringBootTest
 class ProductosRestControllerMockTest
@@ -85,13 +87,6 @@ class ProductosRestControllerMockTest
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
         val pro: Page<Producto?> = Mockito.mock(Page::class.java) as Page<Producto?>
 
-        val result = ProductoListDTO(
-            data = productosDTOTests,
-            currentPage = 0,
-            totalPages = 1,
-            totalElements = 1,
-            sort = "id"
-        )
 
         val nombre = "nombre"
         Mockito.`when`(productosRepository.findByNombreContainsIgnoreCase(nombre, paging)).thenReturn(pro)
@@ -329,5 +324,57 @@ class ProductosRestControllerMockTest
 
         Mockito.verify(productosRepository, Mockito.times(1))
             .findAll()
+    }
+
+    @Test
+    fun createWithImageTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, productoTest.precio, productoTest.categoria.id)
+        val imagen = "1646245208061_nuevoproducto.jpg"
+        val urlImagen = "http://localhost:6969/rest/storage/1646245208061_nuevoproducto.jpg"
+
+        val productoFile = MockMultipartFile("file", "nuevoproducto.jpg", "text/plain", "some info".toByteArray())
+        val productoData = MockMultipartFile(
+            "producto", "", "application/json",
+            """
+                {
+                  "nombre": "${createDTO.nombre}",
+                  "precio": "${createDTO.precio}",
+                  "categoriaId": "${createDTO.categoriaId}"
+                }
+            """.trimIndent().toByteArray()
+        )
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.of(productoTest.categoria))
+        Mockito.`when`(productosMapper.fromDTO(createDTO, productoTest.categoria))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosRepository.save(productoTest))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosMapper.toDTO(productoTest))
+            .thenReturn(productoDTOTest)
+        Mockito.`when`(storageService.store(productoFile))
+            .thenReturn(imagen)
+        Mockito.`when`(storageService.getUrl(imagen))
+            .thenReturn(urlImagen)
+
+        val response = productosRestController.createWithImage(createDTO, productoFile)
+        val res = response.body
+
+        assertAll(
+            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(productoDTOTest, res) }
+        )
+        Mockito.verify(categoriasRepository, Mockito.times(1))
+            .findById(productoTest.categoria.id)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .fromDTO(createDTO, productoTest.categoria)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .save(productoTest)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+        Mockito.verify(storageService, Mockito.times(1))
+            .store(productoFile)
+        Mockito.verify(storageService, Mockito.times(1))
+            .getUrl(imagen)
     }
 }

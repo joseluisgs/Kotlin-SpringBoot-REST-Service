@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -112,7 +113,8 @@ class ProductosRestControlerMVCTest
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(jsonPath("$.id").value(100))
-            .andExpect(jsonPath("$.nombre").value("Producto 100"))
+            .andExpect(jsonPath("$.nombre").value(productoTest.nombre))
+            .andExpect(jsonPath("$.precio").value(productoTest.precio))
             .andReturn()
 
         Mockito.verify(productosRepository, Mockito.times(1))
@@ -158,8 +160,10 @@ class ProductosRestControlerMVCTest
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(100))
-            .andExpect(jsonPath("$.nombre").value("Producto 100"))
+            //.andExpect(jsonPath("$.id").value(100))
+            .andExpect(jsonPath("$.nombre").value(productoDTOTest.nombre))
+            .andExpect(jsonPath("$.precio").value(productoDTOTest.precio))
+            .andExpect(jsonPath("$.categoria").value(productoDTOTest.categoria))
             .andReturn()
 
 
@@ -361,6 +365,63 @@ class ProductosRestControlerMVCTest
 
         Mockito.verify(productosRepository, Mockito.times(1))
             .findAll()
+    }
+
+    @Test
+    fun createWithImageTest() {
+        val createDTO = ProductoCreateDTO(productoTest.nombre, productoTest.precio, productoTest.categoria.id)
+        val imagen = "1646245208061_nuevoproducto.jpg"
+        val urlImagen = "http://localhost:6969/rest/storage/1646245208061_nuevoproducto.jpg"
+
+        val productoFile = MockMultipartFile("file", "nuevoproducto.jpg", "text/plain", "some info".toByteArray())
+        val productoData = MockMultipartFile(
+            "producto", "", "application/json",
+            """
+                {
+                  "nombre": "${createDTO.nombre}",
+                  "precio": "${createDTO.precio}",
+                  "categoriaId": "${createDTO.categoriaId}"
+                }
+            """.trimIndent().toByteArray()
+        )
+
+        Mockito.`when`(categoriasRepository.findById(productoTest.categoria.id))
+            .thenReturn(Optional.of(productoTest.categoria))
+        Mockito.`when`(productosMapper.fromDTO(createDTO, productoTest.categoria))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosRepository.save(productoTest))
+            .thenReturn(productoTest)
+        Mockito.`when`(productosMapper.toDTO(productoTest))
+            .thenReturn(productoDTOTest)
+        Mockito.`when`(storageService.store(productoFile))
+            .thenReturn(imagen)
+        Mockito.`when`(storageService.getUrl(imagen))
+            .thenReturn(urlImagen)
+
+        mockMvc.perform(
+            multipart("/rest/productos/create")
+                .file(productoFile)
+                .file(productoData)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.nombre").value(productoTest.nombre))
+            .andExpect(jsonPath("$.precio").value(productoTest.precio))
+            .andExpect(jsonPath("$.categoria").value(productoTest.categoria.nombre))
+            .andReturn()
+
+
+        Mockito.verify(categoriasRepository, Mockito.times(1))
+            .findById(productoTest.categoria.id)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .fromDTO(createDTO, productoTest.categoria)
+        Mockito.verify(productosRepository, Mockito.times(1))
+            .save(productoTest)
+        Mockito.verify(productosMapper, Mockito.times(1))
+            .toDTO(productoTest)
+        Mockito.verify(storageService, Mockito.times(1))
+            .store(productoFile)
+        Mockito.verify(storageService, Mockito.times(1))
+            .getUrl(imagen)
     }
 
 

@@ -130,10 +130,11 @@ class ProductosRestController
         value = ["/create"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
-    fun nuevoProducto(
+    fun createWithImage(
         @RequestPart("producto") productoDTO: ProductoCreateDTO,
         @RequestPart("file") file: MultipartFile
-    ) {
+    ): ResponseEntity<ProductoDTO> {
+
         // Comprobamos los campos obligatorios
         checkProductoData(productoDTO.nombre, productoDTO.precio, productoDTO.categoriaId)
         val categoria = categoriasRepository.findById(productoDTO.categoriaId).orElseThrow {
@@ -145,7 +146,7 @@ class ProductosRestController
             val urlImagen: String = storageService.getUrl(imagen)
             producto.imagen = urlImagen
         }
-        try {
+        return try {
             val productoInsertado = productosRepository.save(producto)
             ResponseEntity.ok(productosMapper.toDTO(productoInsertado))
         } catch (ex: ProductoNotFoundException) {
