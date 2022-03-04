@@ -1,4 +1,4 @@
-package es.joseluisgs.kotlinspringbootrestservice.mappers
+package es.joseluisgs.kotlinspringbootrestservice.mappers.productos
 
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
@@ -14,7 +14,7 @@ class ProductosMapper {
             producto.nombre,
             producto.precio,
             producto.imagen,
-            producto.createdAt.toString(),
+            producto.createdAt,
             producto.slug,
             producto.categoria.nombre
         )

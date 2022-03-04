@@ -1,5 +1,6 @@
 package es.joseluisgs.kotlinspringbootrestservice.dto.productos
 
+import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
@@ -11,7 +12,7 @@ data class ProductoDTO(
     @Min(message = "El precio no puede ser negativo", value = 0)
     val precio: Double,
     val imagen: String?,
-    val createdAt: String,
+    val createdAt: LocalDateTime,
     val slug: String,
     val categoria: String
 

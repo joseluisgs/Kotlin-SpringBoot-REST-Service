@@ -3,14 +3,13 @@ package es.joseluisgs.kotlinspringbootrestservice.controllers.categorias
 import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
 import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.categorias.CategoriaProductosDTO
-import es.joseluisgs.kotlinspringbootrestservice.errors.GeneralBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.categorias.CategoriaNotFoundException
-import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoBadRequestException
-import es.joseluisgs.kotlinspringbootrestservice.mappers.ProductosMapper
+import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
-import es.joseluisgs.kotlinspringbootrestservice.repositories.CategoriasRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -32,22 +31,19 @@ class CategoriasRestController
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long): ResponseEntity<Categoria> {
-        try {
-            val categoria = categoriasRepository.findById(id).get()
-            return ResponseEntity.ok(categoria)
-        } catch (e: Exception) {
-            throw CategoriaNotFoundException(id)
-        }
+        val categoria = categoriasRepository.findById(id).orElseThrow { CategoriaNotFoundException(id) }
+        return ResponseEntity.ok(categoria)
     }
 
     @PostMapping("")
     fun create(@RequestBody categoria: CategoriaCreateDTO): ResponseEntity<Categoria> {
+        checkCategoriaData(categoria.nombre)
+        val newCategoria = Categoria(categoria.nombre)
         try {
-            checkCategoriaData(categoria.nombre)
-            val newCategoria = Categoria(categoria.nombre)
-            return ResponseEntity.ok(categoriasRepository.save(newCategoria))
+            val result = categoriasRepository.save(newCategoria)
+            return ResponseEntity.status(HttpStatus.CREATED).body(result)
         } catch (e: Exception) {
-            throw GeneralBadRequestException(
+            throw CategoriaBadRequestException(
                 "Error: Insertar Categoria",
                 "Campos incorrectos o nombre existente. ${e.message}"
             )
@@ -56,14 +52,14 @@ class CategoriasRestController
 
     @PutMapping("/{id}")
     fun update(@RequestBody categoria: CategoriaCreateDTO, @PathVariable id: Long): ResponseEntity<Categoria> {
+        checkCategoriaData(categoria.nombre)
+        val updateCategoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
+        updateCategoria.nombre = categoria.nombre
         try {
-            checkCategoriaData(categoria.nombre)
-            val updateCategoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
-            updateCategoria.nombre = categoria.nombre
             return ResponseEntity.ok(categoriasRepository.save(updateCategoria))
         } catch (e: Exception) {
-            throw GeneralBadRequestException(
-                "Error: Insertar Categoria",
+            throw  CategoriaBadRequestException(
+                "Error: Actualizar Categoria",
                 "Campos incorrectos o nombre existente. ${e.message}"
             )
         }
@@ -71,20 +67,19 @@ class CategoriasRestController
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): ResponseEntity<Categoria> {
+        val categoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
+        val numberProductos = categoriasRepository.countByProductos(id)
+        if (numberProductos > 0) {
+            throw CategoriaBadRequestException(
+                "Categoria con id $id",
+                "Está asociadoa a $numberProductos producto(s)"
+            )
+        }
         try {
-            val categoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
-            val numberProductos = categoriasRepository.countByPedidos(id)
-            if (numberProductos > 0) {
-                throw CategoriaBadRequestException(
-                    "Categoria con id $id",
-                    "Está asociadoa a $numberProductos producto(s)"
-                )
-            } else {
-                categoriasRepository.delete(categoria)
-                return ResponseEntity.ok(categoria)
-            }
+            categoriasRepository.delete(categoria)
+            return ResponseEntity.ok(categoria)
         } catch (e: Exception) {
-            throw GeneralBadRequestException(
+            throw  CategoriaBadRequestException(
                 "Error: Eliminar Categoria",
                 "Id de categoria inexistente o asociado a un producto. ${e.message}"
             )
@@ -93,17 +88,17 @@ class CategoriasRestController
 
     @GetMapping("/{id}/productos")
     fun getProductos(@PathVariable id: Long): ResponseEntity<CategoriaProductosDTO> {
+        val categoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
+        val productos = categoriasRepository.findProductosByCategoria(id)
+        val res = CategoriaProductosDTO(
+            categoria.id,
+            categoria.nombre,
+            productosMapper.toDTO(productos)
+        )
         try {
-            val categoria = categoriasRepository.findById(id).orElseGet { throw CategoriaNotFoundException(id) }
-            val productos = categoriasRepository.findProductosByCategoria(id)
-            val res = CategoriaProductosDTO(
-                categoria.id,
-                categoria.nombre,
-                productosMapper.toDTO(productos)
-            )
             return ResponseEntity.ok(res)
         } catch (e: Exception) {
-            throw GeneralBadRequestException(
+            throw  CategoriaBadRequestException(
                 "Error: Obtener Productos",
                 "Id de categoria inexistente. ${e.message}"
             )
@@ -112,7 +107,7 @@ class CategoriasRestController
 
     private fun checkCategoriaData(nombre: String) {
         if (nombre.trim().isBlank()) {
-            throw ProductoBadRequestException("Nombre", "El nombre es obligatorio")
+            throw CategoriaBadRequestException("Nombre", "El nombre es obligatorio")
         }
     }
 }
