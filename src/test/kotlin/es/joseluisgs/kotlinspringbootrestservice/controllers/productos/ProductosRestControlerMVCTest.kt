@@ -2,7 +2,6 @@ package es.joseluisgs.kotlinspringbootrestservice.controllers.productos
 
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
-import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoListDTO
 import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.models.Producto
@@ -64,14 +63,6 @@ class ProductosRestControlerMVCTest
     fun getAllTest() {
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
         val pro: Page<Producto> = Mockito.mock(Page::class.java) as Page<Producto>
-
-        val result = ProductoListDTO(
-            data = productosDTOTests,
-            currentPage = 0,
-            totalPages = 1,
-            totalElements = 1,
-            sort = "id"
-        )
 
         Mockito.`when`(productosRepository.findAll(paging)).thenReturn(pro)
         Mockito.`when`(productosMapper.toDTO(productosTest)).thenReturn(productosDTOTests)
@@ -159,7 +150,7 @@ class ProductosRestControlerMVCTest
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
-            .andExpect(status().isOk)
+            .andExpect(status().isCreated)
             //.andExpect(jsonPath("$.id").value(100))
             .andExpect(jsonPath("$.nombre").value(productoDTOTest.nombre))
             .andExpect(jsonPath("$.precio").value(productoDTOTest.precio))

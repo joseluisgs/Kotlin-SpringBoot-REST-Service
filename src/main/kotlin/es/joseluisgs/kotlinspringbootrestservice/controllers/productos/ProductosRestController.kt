@@ -10,14 +10,18 @@ import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapp
 import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import es.joseluisgs.kotlinspringbootrestservice.repositories.productos.ProductosRepository
 import es.joseluisgs.kotlinspringbootrestservice.services.storage.StorageService
+import es.joseluisgs.kotlinspringbootrestservice.utils.pagination.PaginationLinks
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.util.UriComponentsBuilder
+import javax.servlet.http.HttpServletRequest
 
 
 @RestController
@@ -28,7 +32,8 @@ class ProductosRestController
     private val productosRepository: ProductosRepository,
     private val productosMapper: ProductosMapper,
     private val categoriasRepository: CategoriasRepository,
-    private val storageService: StorageService
+    private val storageService: StorageService,
+    private val paginationLinks: PaginationLinks
 ) {
 
     @GetMapping("")
@@ -37,6 +42,48 @@ class ProductosRestController
         @RequestParam(defaultValue = APIConfig.PAGINATION_INIT) page: Int,
         @RequestParam(defaultValue = APIConfig.PAGINATION_SIZE) size: Int,
         @RequestParam(defaultValue = APIConfig.PAGINATION_SORT) sort: String,
+        request: HttpServletRequest?
+    ): ResponseEntity<ProductoListDTO> {
+        // Consulto en base a las páginas
+        try {
+            val paging: Pageable = PageRequest.of(page, size, Sort.Direction.ASC, sort)
+            val pagedResult = if (nombre != null) {
+                productosRepository.findByNombreContainsIgnoreCase(nombre, paging)
+            } else {
+                productosRepository.findAll(paging)
+            }
+
+            var links = ""
+            if (request != null) {
+                val uriBuilder = UriComponentsBuilder.fromHttpUrl(request.requestURL.toString())
+                links = paginationLinks.createLinkHeader(pagedResult, uriBuilder)
+            }
+
+            val result = ProductoListDTO(
+                data = productosMapper.toDTO(pagedResult.content),
+                currentPage = pagedResult.number,
+                totalPages = pagedResult.totalPages,
+                totalElements = pagedResult.totalElements,
+                sort = sort,
+                links = links
+            )
+
+            return ResponseEntity
+                .ok()
+                .header("link", links)
+                .body(result)
+        } catch (e: Exception) {
+            throw ProductoBadRequestException("Selección de Datos", "Parámetros de consulta incorrectos")
+        }
+    }
+
+    @GetMapping("/all")
+    fun getAllPaginationHeader(
+        @RequestParam(required = false, name = "nombre") nombre: String?,
+        @RequestParam(defaultValue = APIConfig.PAGINATION_INIT) page: Int,
+        @RequestParam(defaultValue = APIConfig.PAGINATION_SIZE) size: Int,
+        @RequestParam(defaultValue = APIConfig.PAGINATION_SORT) sort: String,
+        request: HttpServletRequest
     ): ResponseEntity<ProductoListDTO> {
         // Consulto en base a las páginas
         try {
@@ -53,7 +100,13 @@ class ProductosRestController
                 totalElements = pagedResult.totalElements,
                 sort = sort
             )
-            return ResponseEntity.ok(result)
+            val uriBuilder = UriComponentsBuilder.fromHttpUrl(request.requestURL.toString())
+            println(paginationLinks.createLinkHeader(pagedResult, uriBuilder))
+            return ResponseEntity
+                .ok()
+                .header("link", paginationLinks.createLinkHeader(pagedResult, uriBuilder))
+                .body(result)
+            // return ResponseEntity.ok(result)
         } catch (e: Exception) {
             throw ProductoBadRequestException("Selección de Datos", "Parámetros de consulta incorrectos")
         }
@@ -74,7 +127,9 @@ class ProductosRestController
         val producto = productosMapper.fromDTO(producto, categoria)
         try {
             val result = productosMapper.toDTO(productosRepository.save(producto))
-            return ResponseEntity.ok(result)
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result)
+
         } catch (e: Exception) {
             throw ProductoBadRequestException(
                 "Error: Insertar Producto",

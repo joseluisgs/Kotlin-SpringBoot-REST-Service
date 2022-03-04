@@ -70,7 +70,7 @@ class ProductosRestControllerMockTest
         Mockito.`when`(productosRepository.findAll(paging)).thenReturn(pro)
         Mockito.`when`(productosMapper.toDTO(productosTest)).thenReturn(productosDTOTests)
 
-        val response = productosRestController.getAll(null, 0, 10, "id")
+        val response = productosRestController.getAll(null, 0, 10, "id", null)
         val res = response.body
 
         assertAll(
@@ -92,7 +92,7 @@ class ProductosRestControllerMockTest
         Mockito.`when`(productosRepository.findByNombreContainsIgnoreCase(nombre, paging)).thenReturn(pro)
         Mockito.`when`(productosMapper.toDTO(productosTest)).thenReturn(productosDTOTests)
 
-        val response = productosRestController.getAll(nombre, 0, 10, "id")
+        val response = productosRestController.getAll(nombre, 0, 10, "id", null)
         val res = response.body
 
         assertAll(
@@ -109,7 +109,7 @@ class ProductosRestControllerMockTest
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
 
         val ex = assertThrows<ProductoBadRequestException> {
-            productosRestController.getAll("paparruchas", 0, 10, "id")
+            productosRestController.getAll("paparruchas", 0, 10, "id", null)
         }
         assertTrue(ex.message!!.contains("Parámetros de consulta incorrectos"))
     }
@@ -158,7 +158,7 @@ class ProductosRestControllerMockTest
         val res = response.body
 
         assertAll(
-            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(HttpStatus.CREATED.value(), response.statusCode.value()) },
             { assertEquals(productoDTOTest, res) }
         )
         Mockito.verify(categoriasRepository, Mockito.times(1))

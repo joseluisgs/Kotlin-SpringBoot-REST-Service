@@ -17,5 +17,6 @@ data class ProductoListDTO(
     @Min(message = "El número de elementos por página debe ser mayor o igual a 1", value = 1)
     val totalElements: Long = 0,
     val totalPages: Int = 0,
-    val sort: String? = null
+    val sort: String? = null,
+    val links: String? = null
 )
