@@ -9,6 +9,7 @@ import es.joseluisgs.kotlinspringbootrestservice.mappers.productos.ProductosMapp
 import es.joseluisgs.kotlinspringbootrestservice.models.Categoria
 import es.joseluisgs.kotlinspringbootrestservice.repositories.categorias.CategoriasRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -39,7 +40,8 @@ class CategoriasRestController
         checkCategoriaData(categoria.nombre)
         val newCategoria = Categoria(categoria.nombre)
         try {
-            return ResponseEntity.ok(categoriasRepository.save(newCategoria))
+            val result = categoriasRepository.save(newCategoria)
+            return ResponseEntity.status(HttpStatus.CREATED).body(result)
         } catch (e: Exception) {
             throw CategoriaBadRequestException(
                 "Error: Insertar Categoria",

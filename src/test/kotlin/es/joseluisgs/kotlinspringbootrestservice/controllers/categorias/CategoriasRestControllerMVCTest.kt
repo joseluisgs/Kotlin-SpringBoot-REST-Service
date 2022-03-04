@@ -102,7 +102,7 @@ class CategoriasRestControllerMVCTest
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
-            .andExpect(status().isOk)
+            .andExpect(status().isCreated)
             .andExpect(jsonPath("\$.id").value(categoriaTest.id))
             .andExpect(jsonPath("\$.nombre").value(categoriaTest.nombre))
             .andReturn()

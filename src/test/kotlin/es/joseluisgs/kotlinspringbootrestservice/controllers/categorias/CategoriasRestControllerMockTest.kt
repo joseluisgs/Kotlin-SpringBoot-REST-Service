@@ -92,7 +92,7 @@ class CategoriasRestControllerMockTest
         val res = response.body
 
         assertAll(
-            { assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
+            { assertEquals(HttpStatus.CREATED.value(), response.statusCode.value()) },
             { assertEquals(100, res?.id) },
             { assertEquals("Categoria 100", res?.nombre) }
         )
