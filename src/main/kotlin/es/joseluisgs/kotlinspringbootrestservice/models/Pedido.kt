@@ -24,9 +24,9 @@ data class Pedido(
     val cliente: Usuario,
 
     // Un pedido tiene muchas lineas de pedido P -> LP (Bidreccional)
-    @JsonManagedReference // para romper la recursividad usamos @JsonManagedReference
     @OneToMany(mappedBy = "pedido", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val lineasPedido: MutableSet<LineaPedido> = mutableSetOf()
+    @JsonManagedReference // para romper la recursividad usamos @JsonManagedReference
+    val lineasPedido: MutableList<LineaPedido> = mutableListOf()
 ) {
     // En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
     val total: Double

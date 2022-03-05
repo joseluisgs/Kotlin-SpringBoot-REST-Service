@@ -20,9 +20,9 @@ data class LineaPedido(
     val producto: Producto,
 
     // Una Línea de pedido pertenece a un pedido Bidireccional LP -> P
-    @JsonBackReference //Evita la recursividad infinita
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonBackReference // Evitamos recursividad
     var pedido: Pedido?
 ) {
     /// En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
