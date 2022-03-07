@@ -323,14 +323,15 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:6969/rest/categorias",
+							"raw": "localhost:6969/rest/categorias/1",
 							"host": [
 								"localhost"
 							],
 							"port": "6969",
 							"path": [
 								"rest",
-								"categorias"
+								"categorias",
+								"1"
 							]
 						}
 					},
@@ -429,6 +430,50 @@
 								"categorias",
 								"1",
 								"productos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pedidos",
+			"item": [
+				{
+					"name": "GET ALL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/1",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"1"
 							]
 						}
 					},
