@@ -77,41 +77,6 @@ class ProductosRestController
         }
     }
 
-    @GetMapping("/all")
-    fun getAllPaginationHeader(
-        @RequestParam(required = false, name = "nombre") nombre: String?,
-        @RequestParam(defaultValue = APIConfig.PAGINATION_INIT) page: Int,
-        @RequestParam(defaultValue = APIConfig.PAGINATION_SIZE) size: Int,
-        @RequestParam(defaultValue = APIConfig.PAGINATION_SORT) sort: String,
-        request: HttpServletRequest
-    ): ResponseEntity<ProductoListDTO> {
-        // Consulto en base a las páginas
-        try {
-            val paging: Pageable = PageRequest.of(page, size, Sort.Direction.ASC, sort)
-            val pagedResult = if (nombre != null) {
-                productosRepository.findByNombreContainsIgnoreCase(nombre, paging)
-            } else {
-                productosRepository.findAll(paging)
-            }
-            val result = ProductoListDTO(
-                data = productosMapper.toDTO(pagedResult.content),
-                currentPage = pagedResult.number,
-                totalPages = pagedResult.totalPages,
-                totalElements = pagedResult.totalElements,
-                sort = sort
-            )
-            val uriBuilder = UriComponentsBuilder.fromHttpUrl(request.requestURL.toString())
-            println(paginationLinks.createLinkHeader(pagedResult, uriBuilder))
-            return ResponseEntity
-                .ok()
-                .header("link", paginationLinks.createLinkHeader(pagedResult, uriBuilder))
-                .body(result)
-            // return ResponseEntity.ok(result)
-        } catch (e: Exception) {
-            throw ProductoBadRequestException("Selección de Datos", "Parámetros de consulta incorrectos")
-        }
-    }
-
     @GetMapping("/{id}")
     fun findById(@PathVariable id: Long): ResponseEntity<ProductoDTO> {
         val producto = productosRepository.findById(id).orElseGet { throw ProductoNotFoundException(id) }

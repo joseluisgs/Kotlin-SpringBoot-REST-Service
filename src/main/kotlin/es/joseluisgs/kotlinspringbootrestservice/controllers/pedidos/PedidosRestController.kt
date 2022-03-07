@@ -1,20 +1,19 @@
 package es.joseluisgs.kotlinspringbootrestservice.controllers.pedidos
 
 import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
+import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoListDTO
+import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidosNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.mappers.pedidos.PedidosMapper
 import es.joseluisgs.kotlinspringbootrestservice.repositories.pedidos.PedidosRepository
-import es.joseluisgs.kotlinspringbootrestservice.repositories.productos.ProductosRepository
 import es.joseluisgs.kotlinspringbootrestservice.utils.pagination.PaginationLinks
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 import javax.servlet.http.HttpServletRequest
 
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpServletRequest
 class PedidosRestController
 @Autowired constructor(
     private val pedidosRepository: PedidosRepository,
-    private val productosRepository: ProductosRepository,
     private val pedidosMapper: PedidosMapper,
     private val paginationLinks: PaginationLinks
 ) {
@@ -70,5 +68,9 @@ class PedidosRestController
             .body(result)
     }
 
-
+    @GetMapping("/{id}")
+    fun findById(@PathVariable id: Long): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        return ResponseEntity.ok(pedidosMapper.toDTO(pedido))
+    }
 }

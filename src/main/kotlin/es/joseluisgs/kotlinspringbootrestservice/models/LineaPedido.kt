@@ -25,6 +25,14 @@ data class LineaPedido(
     @JsonBackReference // Evitamos recursividad
     var pedido: Pedido?
 ) {
+    constructor(id: Long, precio: Double, cantidad: Int, producto: Producto) : this(
+        id,
+        precio,
+        cantidad,
+        producto,
+        null
+    )
+
     /// En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
     val subTotal
         get() = this.precio * this.cantidad
