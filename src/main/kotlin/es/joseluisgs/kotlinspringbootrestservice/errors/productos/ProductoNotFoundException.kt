@@ -6,4 +6,4 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class ProductoNotFoundException(id: Long) :
-    RuntimeException("No se puede encontrar el producto con la ID: $id")
+    RuntimeException("No se puede encontrar el producto ID: $id")

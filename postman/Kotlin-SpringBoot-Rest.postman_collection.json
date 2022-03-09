@@ -323,14 +323,15 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:6969/rest/categorias",
+							"raw": "localhost:6969/rest/categorias/1",
 							"host": [
 								"localhost"
 							],
 							"port": "6969",
 							"path": [
 								"rest",
-								"categorias"
+								"categorias",
+								"1"
 							]
 						}
 					},
@@ -429,6 +430,219 @@
 								"categorias",
 								"1",
 								"productos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pedidos",
+			"item": [
+				{
+					"name": "GET ALL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/1",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clienteId\": 4,\n    \"lineasPedido\": [\n        {\n            \"cantidad\": 1,\n            \"productoId\": 2\n        },\n        {\n            \"cantidad\": 2,\n            \"productoId\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/103",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"103"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clienteId\": 3,\n    \"lineasPedido\": [\n        {\n            \"cantidad\": 3,\n            \"productoId\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/100",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"100"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Add Linea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "        {\n            \"cantidad\": 1,\n            \"productoId\": 4\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/100/lineas",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"100",
+								"lineas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Remove Linea",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "        {\n            \"cantidad\": 1,\n            \"productoId\": 4\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/100/lineas/103",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"100",
+								"lineas",
+								"103"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Modify Linea",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "        {\n            \"cantidad\": 4,\n            \"productoId\": 3\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/100/lineas/103",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"100",
+								"lineas",
+								"103"
 							]
 						}
 					},

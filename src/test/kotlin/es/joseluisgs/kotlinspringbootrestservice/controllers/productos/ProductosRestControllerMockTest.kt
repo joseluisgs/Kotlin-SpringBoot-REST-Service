@@ -39,9 +39,9 @@ class ProductosRestControllerMockTest
     @MockBean private val categoriasRepository: CategoriasRepository,
     @MockBean private val storageService: StorageService
 ) {
-    final val categoriaTest = Categoria(100, "Categoria 100")
-    final val productoTest = Producto("Producto 100", 100.0, categoriaTest)
-    final val productoDTOTest = ProductoDTO(
+    private final val categoriaTest = Categoria(100, "Categoria 100")
+    private final val productoTest = Producto("Producto 100", 100.0, categoriaTest)
+    private final val productoDTOTest = ProductoDTO(
         100,
         productoTest.nombre,
         productoTest.precio,
