@@ -21,7 +21,7 @@ data class Pedido(
     // Un pedido tiene un usuario, pero un usuario tiene muchos pedidos, unidireccional P->U
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    val cliente: Usuario,
+    var cliente: Usuario,
 
     // Un pedido tiene muchas lineas de pedido P -> LP (Bidreccional)
     @OneToMany(mappedBy = "pedido", cascade = [CascadeType.ALL], orphanRemoval = true)

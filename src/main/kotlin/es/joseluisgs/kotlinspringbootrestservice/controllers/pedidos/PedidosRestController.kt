@@ -1,9 +1,11 @@
 package es.joseluisgs.kotlinspringbootrestservice.controllers.pedidos
 
 import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
+import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.LineaPedidoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoListDTO
+import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.LineaPedidoNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidosNotFoundException
@@ -136,4 +138,125 @@ class PedidosRestController
             )
         }
     }
+
+    @PutMapping("/{id}")
+    fun update(@PathVariable id: Long, @RequestBody pedidoDTO: PedidoCreateDTO): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        // si hay nuevo cliente lo buscamos
+
+        val cliente = usuariosRepository.findById(pedidoDTO.clienteId).orElseThrow {
+            throw UsuarioNotFoundException(pedidoDTO.clienteId)
+        }
+
+        // Obtenemos las lineas del pedido
+        val lineasPedido = pedidoDTO.lineasPedido.map { linea ->
+            // Buscamos el producto
+            val producto = productosRepository.findById(linea.productoId).orElseThrow {
+                throw ProductoNotFoundException(linea.productoId)
+            }
+            // Lo añadimos al pedido
+            LineaPedido(producto.precio, linea.cantidad, producto)
+        }.toMutableList()
+
+        // Creamos el pedido
+        pedido.cliente = cliente
+        pedido.lineasPedido.clear()
+
+        // Añadimos las lineas
+        lineasPedido.forEach { linea ->
+            pedido.addLineaPedido(linea)
+        }
+
+        // Salvamos el pedido y resultado
+        try {
+            val result = pedidosMapper.toDTO(pedidosRepository.save(pedido))
+            return ResponseEntity.status(HttpStatus.OK).body(result)
+        } catch (e: Exception) {
+            throw PedidoBadRequestException(
+                "Error: Actualizar Pedido",
+                "${e.message}"
+            )
+        }
+    }
+
+    // ahora vamos a hacer el crud sobre pedidos para añadir la línea de pedido
+    @PostMapping("/{id}/lineas")
+    fun addLineaPedido(
+        @PathVariable id: Long,
+        @RequestBody lineaPedidoDTO: LineaPedidoCreateDTO
+    ): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        // Buscamos el producto
+        val producto = productosRepository.findById(lineaPedidoDTO.productoId).orElseThrow {
+            throw ProductoNotFoundException(lineaPedidoDTO.productoId)
+        }
+        // Lo añadimos al pedido
+        val lineaPedido = LineaPedido(producto.precio, lineaPedidoDTO.cantidad, producto)
+        pedido.addLineaPedido(lineaPedido)
+        // Salvamos el pedido y resultado
+        try {
+            val result = pedidosMapper.toDTO(pedidosRepository.save(pedido))
+            return ResponseEntity.status(HttpStatus.OK).body(result)
+        } catch (e: Exception) {
+            throw PedidoBadRequestException(
+                "Error: Añadir Linea Pedido",
+                "${e.message}"
+            )
+        }
+    }
+
+    @DeleteMapping("/{id}/lineas/{lineaId}")
+    fun deleteLineaPedido(
+        @PathVariable id: Long,
+        @PathVariable lineaId: Long
+    ): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        // Buscamos el producto
+        val lineaPedido = pedido.lineasPedido.find { it.id == lineaId } ?: throw LineaPedidoNotFoundException(lineaId)
+
+        pedido.removeLineaPedido(lineaPedido)
+        // Salvamos el pedido y resultado
+        try {
+            val result = pedidosMapper.toDTO(pedidosRepository.save(pedido))
+            return ResponseEntity.status(HttpStatus.OK).body(result)
+        } catch (e: Exception) {
+            throw PedidoBadRequestException(
+                "Error: Eliminar Linea Pedido",
+                "${e.message}"
+            )
+        }
+    }
+
+    @PutMapping("/{id}/lineas/{lineaId}")
+    fun updateLineaPedido(
+        @PathVariable id: Long,
+        @PathVariable lineaId: Long,
+        @RequestBody lineaPedidoDTO: LineaPedidoCreateDTO
+    ): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        // Buscamos la linea de pedido
+        var lineaPedido = pedido.lineasPedido.find { it.id == lineaId } ?: throw LineaPedidoNotFoundException(lineaId)
+        // Buscamos el producto
+        var producto = productosRepository.findById(lineaPedidoDTO.productoId).orElseThrow {
+            throw ProductoNotFoundException(lineaPedidoDTO.productoId)
+        }
+
+        // Lo añadimos al pedido
+        lineaPedido.apply {
+            cantidad = lineaPedidoDTO.cantidad
+            producto = producto
+            precio = producto.precio
+        }
+        // Salvamos el pedido y resultado
+        try {
+            val result = pedidosMapper.toDTO(pedidosRepository.save(pedido))
+            return ResponseEntity.status(HttpStatus.OK).body(result)
+        } catch (e: Exception) {
+            throw PedidoBadRequestException(
+                "Error: Actualizar Linea Pedido",
+                "${e.message}"
+            )
+        }
+    }
+
 }

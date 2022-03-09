@@ -8,8 +8,8 @@ data class LineaPedido(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
-    val precio: Double,
-    val cantidad: Int,
+    var precio: Double,
+    var cantidad: Int,
 
     // Mi relaciones
 
