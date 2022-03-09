@@ -8,8 +8,8 @@ data class LineaPedido(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
-    val precio: Double,
-    val cantidad: Int,
+    var precio: Double,
+    var cantidad: Int,
 
     // Mi relaciones
 
@@ -20,11 +20,27 @@ data class LineaPedido(
     val producto: Producto,
 
     // Una Línea de pedido pertenece a un pedido Bidireccional LP -> P
-    @JsonBackReference //Evita la recursividad infinita
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonBackReference // Evitamos recursividad
     var pedido: Pedido?
 ) {
+    constructor(id: Long, precio: Double, cantidad: Int, producto: Producto) : this(
+        id,
+        precio,
+        cantidad,
+        producto,
+        null
+    )
+
+    constructor(precio: Double, cantidad: Int, producto: Producto) : this(
+        0,
+        precio,
+        cantidad,
+        producto,
+        null
+    )
+
     /// En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
     val subTotal
         get() = this.precio * this.cantidad

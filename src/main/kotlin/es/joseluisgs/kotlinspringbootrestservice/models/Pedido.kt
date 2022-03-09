@@ -21,12 +21,12 @@ data class Pedido(
     // Un pedido tiene un usuario, pero un usuario tiene muchos pedidos, unidireccional P->U
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    val cliente: Usuario,
+    var cliente: Usuario,
 
     // Un pedido tiene muchas lineas de pedido P -> LP (Bidreccional)
-    @JsonManagedReference // para romper la recursividad usamos @JsonManagedReference
     @OneToMany(mappedBy = "pedido", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val lineasPedido: MutableSet<LineaPedido> = mutableSetOf()
+    @JsonManagedReference // para romper la recursividad usamos @JsonManagedReference
+    val lineasPedido: MutableList<LineaPedido> = mutableListOf()
 ) {
     // En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
     val total: Double
@@ -42,4 +42,6 @@ data class Pedido(
         lineasPedido.remove(lineaPedido)
         lineaPedido.pedido = null
     }
+
+    constructor(cliente: Usuario) : this(0, LocalDateTime.now(), cliente, mutableListOf())
 }

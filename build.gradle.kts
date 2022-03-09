@@ -35,10 +35,14 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     // Anotaciones para Jackson y manejo de la recursividad
     compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.13.1")
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
+    implementation("javax.validation:validation-api:2.0.1.Final")
+    // Lombok --> No es necesario por las ventajas de Kotlin
+    // compileOnly("org.projectlombok:lombok")
+    // annotationProcessor("org.projectlombok:lombok")
     // Test de spring
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Mockito Kotlin para valores nulos
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 

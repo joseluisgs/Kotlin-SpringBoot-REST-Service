@@ -1,14 +1,14 @@
 package es.joseluisgs.kotlinspringbootrestservice.models
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 data class Categoria(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long,
-    val nombre: String
-)
+    @Column(unique = true)
+    var nombre: String
+) {
+    constructor(nombre: String) : this(0, nombre)
+}
