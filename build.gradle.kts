@@ -34,15 +34,17 @@ dependencies {
     // Base de datos de prueba
     runtimeOnly("com.h2database:h2")
     // Anotaciones para Jackson y manejo de la recursividad
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.13.1")
-    implementation("javax.validation:validation-api:2.0.1.Final")
+    compileOnly("com.fasterxml.jackson.core:jackson-annotations")
+    implementation("javax.validation:validation-api")
     // Lombok --> No es necesario por las ventajas de Kotlin
     // compileOnly("org.projectlombok:lombok")
     // annotationProcessor("org.projectlombok:lombok")
+    // Swagger
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
     // Test de spring
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    // Mockito Kotlin para valores nulos
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    // Mockito Kotlin con mejoras para usar Mockito con Kotlin
+    // testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
@@ -57,7 +59,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// Indicamos con qué anotaciones siempre serán abietas las clases abiertas ya que usamos data classes
+// Indicamos con qué anotaciones siempre serán abiertas las clases abiertas ya que usamos data classes
 allOpen {
     annotation("javax.persistence.Entity")
     annotation("javax.persistence.Embeddable")
