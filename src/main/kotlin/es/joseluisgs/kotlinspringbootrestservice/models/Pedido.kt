@@ -42,4 +42,6 @@ data class Pedido(
         lineasPedido.remove(lineaPedido)
         lineaPedido.pedido = null
     }
+
+    constructor(cliente: Usuario) : this(0, LocalDateTime.now(), cliente, mutableListOf())
 }

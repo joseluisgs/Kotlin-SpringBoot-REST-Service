@@ -478,6 +478,54 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clienteId\": 4,\n    \"lineasPedido\": [\n        {\n            \"cantidad\": 1,\n            \"productoId\": 2\n        },\n        {\n            \"cantidad\": 2,\n            \"productoId\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:6969/rest/pedidos",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:6969/rest/pedidos/103",
+							"host": [
+								"localhost"
+							],
+							"port": "6969",
+							"path": [
+								"rest",
+								"pedidos",
+								"103"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

@@ -1,8 +1,6 @@
 package es.joseluisgs.kotlinspringbootrestservice.controllers.pedidos
 
-import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.LineaPedidoDTO
-import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoDTO
-import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoListDTO
+import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.*
 import es.joseluisgs.kotlinspringbootrestservice.dto.productos.ProductoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.usuarios.UsuarioPedidoDTO
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoNotFoundException
@@ -10,6 +8,7 @@ import es.joseluisgs.kotlinspringbootrestservice.mappers.pedidos.PedidosMapper
 import es.joseluisgs.kotlinspringbootrestservice.models.*
 import es.joseluisgs.kotlinspringbootrestservice.repositories.pedidos.PedidosRepository
 import es.joseluisgs.kotlinspringbootrestservice.repositories.productos.ProductosRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.usuarios.UsuariosRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -34,6 +33,7 @@ class PedidosRestControllerMockTest
     @MockBean private val pedidosRepository: PedidosRepository,
     @MockBean private val productosRepository: ProductosRepository,
     @MockBean private val pedidosMapper: PedidosMapper,
+    @MockBean private val usuariosRepository: UsuariosRepository
 ) {
     final val cliente = Usuario(
         id = 100,
@@ -97,6 +97,16 @@ class PedidosRestControllerMockTest
     private final val pedidosTest = listOf(pedidoTest)
     private final val pedidosDTOTests = listOf(pedidoDTOTest)
 
+    private final val pedidoCreateDTOTest = PedidoCreateDTO(
+        clienteId = cliente.id,
+        lineasPedido = listOf(
+            LineaPedidoCreateDTO(
+                productoId = lineasPedidoTest.producto.id,
+                cantidad = lineasPedidoTest.cantidad
+            )
+        ),
+    )
+
     @Test
     fun getAllTest() {
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
@@ -154,5 +164,33 @@ class PedidosRestControllerMockTest
         Assertions.assertTrue(ex.message!!.contains("100"))
     }
 
+    /* @Test
+     fun createTest() {
+         Mockito.`when`(usuariosRepository.findById(pedidoCreateDTOTest.clienteId))
+             .thenReturn(Optional.of(cliente))
+         Mockito.`when`(productosRepository.findById(pedidoCreateDTOTest.lineasPedido[0].productoId))
+             .thenReturn(Optional.of(productoTest))
 
+         // Otra forma usando Mockito Kotlin
+         whenever(pedidosRepository.save(pedidoTest)).thenReturn(pedidoTest)
+
+         Mockito.`when`(pedidosMapper.toDTO(pedidoTest)).thenReturn(pedidoDTOTest)
+
+         val response = pedidosRestController.create(pedidoCreateDTOTest)
+         val res = response.body
+
+         assertAll(
+             { Assertions.assertEquals(HttpStatus.CREATED.value(), response.statusCode.value()) },
+             { Assertions.assertEquals(pedidoDTOTest, res) }
+         )
+
+         Mockito.verify(usuariosRepository, Mockito.times(1))
+             .findById(cliente.id)
+         Mockito.verify(productosRepository, Mockito.times(1))
+             .findById(productoTest.id)
+         Mockito.verify(pedidosRepository, Mockito.times(1))
+             .save(pedidoTest)
+         Mockito.verify(pedidosMapper, Mockito.times(1))
+             .toDTO(pedidoTest)
+     }*/
 }

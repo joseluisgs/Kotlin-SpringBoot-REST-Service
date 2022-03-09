@@ -33,6 +33,14 @@ data class LineaPedido(
         null
     )
 
+    constructor(precio: Double, cantidad: Int, producto: Producto) : this(
+        0,
+        precio,
+        cantidad,
+        producto,
+        null
+    )
+
     /// En vez de una función creo una propiedad claculada, es decir cuando quieran adquirir el getter
     val subTotal
         get() = this.precio * this.cantidad

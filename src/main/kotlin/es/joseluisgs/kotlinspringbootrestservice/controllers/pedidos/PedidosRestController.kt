@@ -1,17 +1,27 @@
 package es.joseluisgs.kotlinspringbootrestservice.controllers.pedidos
 
 import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
+import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoCreateDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoDTO
 import es.joseluisgs.kotlinspringbootrestservice.dto.pedidos.PedidoListDTO
+import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoBadRequestException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidoNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.errors.pedidos.PedidosNotFoundException
+import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoBadRequestException
+import es.joseluisgs.kotlinspringbootrestservice.errors.productos.ProductoNotFoundException
+import es.joseluisgs.kotlinspringbootrestservice.errors.usuarios.UsuarioNotFoundException
 import es.joseluisgs.kotlinspringbootrestservice.mappers.pedidos.PedidosMapper
+import es.joseluisgs.kotlinspringbootrestservice.models.LineaPedido
+import es.joseluisgs.kotlinspringbootrestservice.models.Pedido
 import es.joseluisgs.kotlinspringbootrestservice.repositories.pedidos.PedidosRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.productos.ProductosRepository
+import es.joseluisgs.kotlinspringbootrestservice.repositories.usuarios.UsuariosRepository
 import es.joseluisgs.kotlinspringbootrestservice.utils.pagination.PaginationLinks
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
@@ -24,7 +34,9 @@ class PedidosRestController
 @Autowired constructor(
     private val pedidosRepository: PedidosRepository,
     private val pedidosMapper: PedidosMapper,
-    private val paginationLinks: PaginationLinks
+    private val paginationLinks: PaginationLinks,
+    private val productosRepository: ProductosRepository,
+    private val usuariosRepository: UsuariosRepository
 ) {
 
     @RequestMapping("")
@@ -72,5 +84,56 @@ class PedidosRestController
     fun findById(@PathVariable id: Long): ResponseEntity<PedidoDTO> {
         val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
         return ResponseEntity.ok(pedidosMapper.toDTO(pedido))
+    }
+
+    @PostMapping("")
+    fun create(@RequestBody pedido: PedidoCreateDTO): ResponseEntity<PedidoDTO> {
+        // Obtenemos el cliente
+        val cliente = usuariosRepository.findById(pedido.clienteId).orElseThrow {
+            throw UsuarioNotFoundException(pedido.clienteId)
+        }
+
+        // Obtenemos las lineas del pedido
+        val lineasPedido = pedido.lineasPedido.map { linea ->
+            // Buscamos el producto
+            val producto = productosRepository.findById(linea.productoId).orElseThrow {
+                throw ProductoNotFoundException(linea.productoId)
+            }
+            // Lo añadimos al pedido
+            LineaPedido(producto.precio, linea.cantidad, producto)
+        }.toMutableList()
+
+        // Creamos el pedido
+        val pedido = Pedido(cliente)
+
+        // Añadimos las lineas
+        lineasPedido.forEach { linea ->
+            pedido.addLineaPedido(linea)
+        }
+
+        // Salvamos el pedido y resultado
+        try {
+            val result = pedidosMapper.toDTO(pedidosRepository.save(pedido))
+            return ResponseEntity.status(HttpStatus.CREATED).body(result)
+        } catch (e: Exception) {
+            throw PedidoBadRequestException(
+                "Error: Insertar Pedido",
+                "Campos incorrectos. ${e.message}"
+            )
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: Long): ResponseEntity<PedidoDTO> {
+        val pedido = pedidosRepository.findById(id).orElseGet { throw PedidoNotFoundException(id) }
+        try {
+            pedidosRepository.delete(pedido)
+            return ResponseEntity.ok(pedidosMapper.toDTO(pedido))
+        } catch (e: Exception) {
+            throw ProductoBadRequestException(
+                "Error: Eliminar Pedido",
+                "Id de pedido no existe. ${e.message}"
+            )
+        }
     }
 }

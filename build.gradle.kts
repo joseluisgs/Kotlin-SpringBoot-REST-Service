@@ -41,6 +41,8 @@ dependencies {
     // annotationProcessor("org.projectlombok:lombok")
     // Test de spring
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Mockito Kotlin para valores nulos
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
