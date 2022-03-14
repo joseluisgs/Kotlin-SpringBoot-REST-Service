@@ -32,7 +32,7 @@ class UsuarioService
     /**
      * Nos permite crear un nuevo Usuario con rol USER
      */
-    fun nuevoUsuario(newUser: UsuarioCreateDTO): Usuario? {
+    fun nuevoUsuario(newUser: UsuarioCreateDTO): Usuario {
         // System.out.println(passwordEncoder.encode(newUser.getPassword()));
         return if (newUser.password.contentEquals(newUser.password2)) {
             val usuario = Usuario(

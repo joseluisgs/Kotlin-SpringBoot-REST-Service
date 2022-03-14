@@ -8,5 +8,5 @@ class JwtUserResponse(
     email: String,
     roles: Set<String>,
     avatar: String?,
-    token: String
+    val token: String
 ) : UsuarioGetDTO(username, fullName, email, roles, avatar)

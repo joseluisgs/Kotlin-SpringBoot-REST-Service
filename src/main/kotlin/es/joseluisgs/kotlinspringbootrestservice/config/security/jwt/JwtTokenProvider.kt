@@ -43,9 +43,7 @@ class JwtTokenProvider {
             .setExpiration(tokenExpirationDate) // Payload o datos extra del token son claims
             // Nombre completo del usuario
             .claim("fullname", usuario.fullName) // Le añadimos los roles o lo que queramos como payload: claims
-            .claim("roles", usuario.roles
-                .map { obj: UsuarioRol -> obj.name }
-                .joinToString(", ")
+            .claim("roles", usuario.roles.joinToString(", ") { obj: UsuarioRol -> obj.name }
             )
             .compact()
     }

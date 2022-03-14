@@ -16,7 +16,7 @@ class PedidosMapper
         return PedidoDTO(
             pedido.id,
             pedido.fecha,
-            usuariosMapper.toDTO(pedido.cliente),
+            usuariosMapper.toUsuarioPedidoDTO(pedido.cliente),
             pedido.total,
             lineasPedidoMapper.toDTO(pedido.lineasPedido)
         )

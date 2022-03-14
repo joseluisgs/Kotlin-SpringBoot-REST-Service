@@ -1,9 +1,11 @@
 package es.joseluisgs.kotlinspringbootrestservice.config.security
 
+import es.joseluisgs.kotlinspringbootrestservice.config.APIConfig
 import es.joseluisgs.kotlinspringbootrestservice.config.security.jwt.JwtAuthorizationFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -56,9 +58,14 @@ class SecurityConfig
             .and() // Autorizamos con roles y acceso
             .authorizeRequests()
 
+            // Permisos
+            // Registrarse todos y loguearse todos. De esta manera podemos permitir las consultas a todas las rutas
+            .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/usuarios/**").permitAll()
+            .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/usuarios/**").hasAnyRole("USER", "ADMIN")
+
             // Dejamos todo abierto por ahora
             .anyRequest().not().authenticated()
-        
+
 
         // Será el encargado de coger el token y si es válido lo dejaremos pasar...
         // Añadimos el filtro (jwtAuthorizationFilter).
