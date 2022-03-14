@@ -41,7 +41,7 @@ class PedidosRestControllerMockTest
         fullName = "Prueba",
         password = "1234",
         email = "test@test.com",
-        roles = setOf(Rol.USER),
+        roles = setOf(UsuarioRol.USER),
         createdAt = LocalDateTime.now(),
         lastPasswordChangeAt = LocalDateTime.now(),
         avatar = "",

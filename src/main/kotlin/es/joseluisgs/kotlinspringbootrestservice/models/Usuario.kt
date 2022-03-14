@@ -31,7 +31,9 @@ data class Usuario(
     // Conjunto de permisos que tiene, lo obtenemos como una colección de permisos
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING) // la persistimos por su nombre
-    val roles: Set<Rol>,
+    val roles: Set<UsuarioRol>,
 
     val lastPasswordChangeAt: LocalDateTime = LocalDateTime.now()
-)
+) {
+    // TODO Usuario, user details
+}
