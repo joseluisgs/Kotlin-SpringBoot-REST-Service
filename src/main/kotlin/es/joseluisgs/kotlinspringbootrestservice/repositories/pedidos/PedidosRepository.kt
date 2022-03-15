@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface PedidosRepository : JpaRepository<Pedido, Long> {
-    fun findByClienteId(userId: Long?, pageable: Pageable?): Page<Pedido?>
+    fun findByClienteId(userId: Long, pageable: Pageable?): Page<Pedido?>
+    fun findByIdAndClienteId(id: Long, userId: Long): Pedido?
 }

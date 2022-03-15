@@ -78,7 +78,14 @@ class SecurityConfig
             .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
             .antMatchers(HttpMethod.PUT, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
             .antMatchers(HttpMethod.DELETE, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
+            // Mis Pedidos CRUD, solo si son míos
+            // CRUD  de Pedidos solo administration
+            .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/auth/user/pedidos/**").hasAnyRole("USER")
+            .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/auth/user/pedidos/**").hasAnyRole("USER")
+            .antMatchers(HttpMethod.PUT, APIConfig.API_PATH + "/auth/user/pedidos/**").hasAnyRole("USER")
+            .antMatchers(HttpMethod.DELETE, APIConfig.API_PATH + "/auth/user/pedidos/**").hasAnyRole("USER")
             // Dejamos todo abierto por ahora
+
             .anyRequest().not().authenticated()
 
 
