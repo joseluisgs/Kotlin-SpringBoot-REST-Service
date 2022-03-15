@@ -62,7 +62,22 @@ class SecurityConfig
             // Registrarse todos y loguearse todos. De esta manera podemos permitir las consultas a todas las rutas
             .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/usuarios/**").permitAll()
             .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/usuarios/**").hasAnyRole("USER", "ADMIN")
-
+            // He dejado experimentos con rutas duplicando controladores en /auth
+            // CRUD de Categorias, solo Admin
+            .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/auth/categorias/**").hasAnyRole("USER", "ADMIN")
+            .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/auth/categorias/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.PUT, APIConfig.API_PATH + "/auth/categorias/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.DELETE, APIConfig.API_PATH + "/auth/categorias/**").hasAnyRole("ADMIN")
+            // CRUD de Productos, solo Admin...
+            .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/auth/productos/**").hasAnyRole("USER", "ADMIN")
+            .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/auth/productos/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.PUT, APIConfig.API_PATH + "/auth/productos/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.DELETE, APIConfig.API_PATH + "/auth/productos/**").hasAnyRole("ADMIN")
+            // CRUD  de Pedidos solo administration
+            .antMatchers(HttpMethod.GET, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.POST, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.PUT, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
+            .antMatchers(HttpMethod.DELETE, APIConfig.API_PATH + "/auth/pedidos/**").hasAnyRole("ADMIN")
             // Dejamos todo abierto por ahora
             .anyRequest().not().authenticated()
 
