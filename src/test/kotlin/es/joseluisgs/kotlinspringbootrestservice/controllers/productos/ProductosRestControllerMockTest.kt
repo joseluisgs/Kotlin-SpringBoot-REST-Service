@@ -46,7 +46,7 @@ class ProductosRestControllerMockTest
         productoTest.nombre,
         productoTest.precio,
         productoTest.imagen,
-        productoTest.createdAt,
+        productoTest.createdAt.toString(),
         productoTest.slug,
         productoTest.categoria.nombre
     )

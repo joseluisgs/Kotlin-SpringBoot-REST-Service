@@ -278,7 +278,7 @@ class CategoriasRestControllerMVCTest
             producto.nombre,
             producto.precio,
             producto.imagen,
-            producto.createdAt,
+            producto.createdAt.toString(),
             producto.slug,
             producto.categoria.nombre
         )

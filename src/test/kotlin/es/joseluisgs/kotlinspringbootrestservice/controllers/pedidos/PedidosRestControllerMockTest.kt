@@ -56,7 +56,7 @@ class PedidosRestControllerMockTest
         productoTest.nombre,
         productoTest.precio,
         productoTest.imagen,
-        productoTest.createdAt,
+        productoTest.createdAt.toString(),
         productoTest.slug,
         productoTest.categoria.nombre
     )
@@ -84,7 +84,7 @@ class PedidosRestControllerMockTest
 
     private final val pedidoDTOTest = PedidoDTO(
         id = pedidoTest.id,
-        fecha = pedidoTest.fecha,
+        fecha = pedidoTest.fecha.toString(),
         total = pedidoTest.total,
         cliente = UsuarioPedidoDTO(
             username = cliente.username,
@@ -112,7 +112,7 @@ class PedidosRestControllerMockTest
         val paging: Pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id")
         val ped: Page<Pedido> = Mockito.mock(Page::class.java) as Page<Pedido>
 
-        val result = PedidoListDTO(
+        PedidoListDTO(
             data = pedidosDTOTests,
             currentPage = 0,
             totalPages = 1,
@@ -124,7 +124,7 @@ class PedidosRestControllerMockTest
         Mockito.`when`(pedidosMapper.toDTO(pedidosTest)).thenReturn(pedidosDTOTests)
 
         val response = pedidosRestController.getAll(0, 10, "id", null)
-        val res = response.body
+        // val res = response.body
 
         assertAll(
             { Assertions.assertEquals(HttpStatus.OK.value(), response.statusCode.value()) },
