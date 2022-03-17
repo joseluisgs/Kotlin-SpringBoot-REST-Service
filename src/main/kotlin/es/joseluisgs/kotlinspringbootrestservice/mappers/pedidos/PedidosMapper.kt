@@ -15,8 +15,8 @@ class PedidosMapper
     fun toDTO(pedido: Pedido): PedidoDTO {
         return PedidoDTO(
             pedido.id,
-            pedido.fecha,
-            usuariosMapper.toDTO(pedido.cliente),
+            pedido.fecha.toString(),
+            usuariosMapper.toUsuarioPedidoDTO(pedido.cliente),
             pedido.total,
             lineasPedidoMapper.toDTO(pedido.lineasPedido)
         )

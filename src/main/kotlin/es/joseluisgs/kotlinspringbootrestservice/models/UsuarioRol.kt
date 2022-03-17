@@ -1,7 +1,7 @@
 package es.joseluisgs.kotlinspringbootrestservice.models
 
 // Roles de usuario
-enum class Rol {
+enum class UsuarioRol {
     USER,  // Normal
     ADMIN // Administrador
 }

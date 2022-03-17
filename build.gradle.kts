@@ -31,6 +31,12 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    // Spring Security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    // JWT (Json Web Token)
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
     // Base de datos de prueba
     runtimeOnly("com.h2database:h2")
     // Anotaciones para Jackson y manejo de la recursividad
@@ -43,6 +49,8 @@ dependencies {
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     // Test de spring
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Test Spring Security
+    testImplementation("org.springframework.security:spring-security-test")
     // Mockito Kotlin con mejoras para usar Mockito con Kotlin
     // testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
