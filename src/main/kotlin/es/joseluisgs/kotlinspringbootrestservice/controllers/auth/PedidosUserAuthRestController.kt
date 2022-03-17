@@ -248,16 +248,15 @@ class PedidosUserAuthRestController
         val pedido = pedidosRepository.findByIdAndClienteId(id, user.id)
             ?: throw PedidoNotFoundException(id)
         // Buscamos la linea de pedido
-        var lineaPedido = pedido.lineasPedido.find { it.id == lineaId } ?: throw LineaPedidoNotFoundException(lineaId)
+        val lineaPedido = pedido.lineasPedido.find { it.id == lineaId } ?: throw LineaPedidoNotFoundException(lineaId)
         // Buscamos el producto
-        var producto = productosRepository.findById(lineaPedidoDTO.productoId).orElseThrow {
+        val producto = productosRepository.findById(lineaPedidoDTO.productoId).orElseThrow {
             throw ProductoNotFoundException(lineaPedidoDTO.productoId)
         }
 
         // Lo añadimos al pedido
         lineaPedido.apply {
             cantidad = lineaPedidoDTO.cantidad
-            producto = producto
             precio = producto.precio
         }
         // Salvamos el pedido y resultado
