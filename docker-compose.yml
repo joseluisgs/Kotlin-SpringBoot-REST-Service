@@ -6,10 +6,10 @@ version: '3.7'
 # Iniciamos los servicios
 services:
   # SpringBoot API
-  springboot-productos-dam:
+  kotlin-springboot:
     build: .
-    image: springboot-productos-dam:latest
-    container_name: springboot-productos-dam
+    image: kotlin-springboot:latest
+    container_name: kotlin-springboot
     ports:
       - 6969:6969
     expose:
